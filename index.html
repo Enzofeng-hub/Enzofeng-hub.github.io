@@ -259,16 +259,17 @@ a { color: inherit; text-decoration: none; }
 /* Mosaic grid — mouse-follow reveal, black/gray tones */
 .mosaic-zone {
   position: absolute;
-  top: 0; right: 0;
-  width: 55%; height: 100%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   z-index: 0;
   pointer-events: none;
 }
 .mosaic-grid {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  top: 0; left: 0; right: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, 48px);
+  grid-auto-rows: 48px;
   gap: 3px;
   padding: 0 40px;
   z-index: 0;
@@ -301,7 +302,7 @@ a { color: inherit; text-decoration: none; }
   opacity: 0;
   animation: fadeUp 1s 0s forwards;
   opacity: 0.15;
-  filter: grayscale(1) contrast(1.1) brightness(0.8);
+  filter: grayscale(0.55) contrast(1.05) brightness(0.85);
   mix-blend-mode: lighten;
   pointer-events: none;
   mask-image:
@@ -318,14 +319,14 @@ a { color: inherit; text-decoration: none; }
 /* Hero contact whisper — bottom-left */
 .hero-contact-whisper {
   position: absolute;
-  bottom: 60px; left: 60px;
+  bottom: 28px; left: 60px;
   z-index: 1;
-  max-width: 320px;
+  max-width: 380px;
   opacity: 0;
   animation: fadeUp .8s 1.3s forwards;
 }
 .hero-contact-whisper .hcw-headline {
-  font-size: 22px; font-weight: 600;
+  font-size: 26px; font-weight: 600;
   color: var(--text);
   letter-spacing: -.02em;
   line-height: 1.4;
@@ -335,8 +336,8 @@ a { color: inherit; text-decoration: none; }
   display: flex; flex-direction: column; gap: 8px;
 }
 .hero-contact-whisper .hcw-link {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 14px; font-weight: 400;
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 400;
   color: var(--muted);
   transition: color .2s;
 }
@@ -347,12 +348,12 @@ a { color: inherit; text-decoration: none; }
 }
 
 .hero-inner {
-  max-width: 960px; margin: 0 auto; width: 100%;
+  max-width: 720px; width: 100%;
   position: relative; z-index: 1;
 }
 .hero-eyebrow {
   display: inline-flex; align-items: center; gap: 8px;
-  font-size: 12px; font-weight: 500; color: var(--muted2);
+  font-size: 14px; font-weight: 500; color: var(--muted2);
   letter-spacing: .12em; text-transform: uppercase;
   margin-bottom: 28px;
   opacity: 0; animation: fadeUp .7s .2s forwards;
@@ -362,26 +363,26 @@ a { color: inherit; text-decoration: none; }
   width: 28px; height: 1px; background: var(--muted);
 }
 .hero-h1 {
-  font-size: clamp(52px, 7.5vw, 96px);
+  font-size: clamp(60px, 8.5vw, 108px);
   font-weight: 800; line-height: 1.0; letter-spacing: -.04em;
   color: var(--accent);
   opacity: 0; animation: fadeUp .8s .35s forwards;
 }
 .hero-h1 .line2 { color: var(--muted); }
 .hero-tags {
-  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 28px;
+  display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px;
   opacity: 0; animation: fadeUp .7s .55s forwards;
 }
 .hero-tag {
-  padding: 6px 14px; border: 1px solid var(--border2);
-  border-radius: 999px; font-size: 12px; font-weight: 500;
+  padding: 7px 16px; border: 1px solid var(--border2);
+  border-radius: 999px; font-size: 13px; font-weight: 500;
   color: var(--muted2); background: var(--bg2);
   transition: all .2s;
 }
 .hero-tag:hover { color: var(--accent); border-color: var(--muted); }
 .hero-desc {
-  max-width: 540px; font-size: 16px; font-weight: 300;
-  color: var(--muted2); line-height: 1.8; margin-top: 32px;
+  max-width: 520px; font-size: 18px; font-weight: 300;
+  color: var(--muted2); line-height: 1.7; margin-top: 28px;
   min-height: 58px;
   opacity: 0; animation: fadeUp .7s .7s forwards;
 }
@@ -399,15 +400,34 @@ a { color: inherit; text-decoration: none; }
   50% { opacity: 0; }
 }
 .hero-cta {
-  display: flex; gap: 16px; align-items: center; margin-top: 44px;
+  display: flex; gap: 16px; align-items: center; margin-top: 56px;
   opacity: 0; animation: fadeUp .7s .85s forwards;
 }
 .btn-primary {
-  padding: 13px 28px; background: var(--accent); color: #0d0d0d;
-  font-size: 14px; font-weight: 600; border-radius: 8px;
-  transition: opacity .2s, transform .2s;
+  padding: 15px 32px; background: var(--accent); color: #0d0d0d;
+  font-size: 15px; font-weight: 700; border-radius: 10px;
+  letter-spacing: .02em;
+  transition: all .25s;
+  position: relative;
+  box-shadow: 0 0 0 0 rgba(255,255,255,0.35);
+  animation: btnPulse 2.5s 1.5s ease-out infinite;
 }
-.btn-primary:hover { opacity: .88; transform: translateY(-1px); }
+.btn-primary:hover {
+  opacity: 1;
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 24px rgba(255,255,255,0.25);
+}
+.btn-arrow {
+  display: inline-block;
+  margin-left: 2px;
+  font-size: 18px;
+  font-style: normal;
+}
+@keyframes btnPulse {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+  70% { box-shadow: 0 0 0 14px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
 .btn-ghost {
   padding: 13px 28px; border: 1px solid var(--border2);
   font-size: 14px; font-weight: 500; color: var(--muted2);
@@ -529,7 +549,7 @@ a { color: inherit; text-decoration: none; }
 ═══════════════════════════════════════════ */
 .jd-page-wrap {
   display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; padding: 60px 40px;
+  min-height: 100vh; padding: 40px 40px;
   position: relative;
 }
 .jd-company {
@@ -541,7 +561,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .jd-meta-row {
-  display: flex; align-items: center; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+  display: flex; align-items: center; gap: 16px; margin-top: 12px; flex-wrap: wrap;
 }
 .jd-meta-role { font-size: 14px; color: var(--muted2); }
 .jd-meta-period {
@@ -567,7 +587,7 @@ a { color: inherit; text-decoration: none; }
 
 .jd-divider {
   width: 40px; height: 1px; background: var(--border2);
-  margin: 40px 0; opacity: 0; animation: jdFadeIn 0.6s ease 1s forwards;
+  margin: 24px 0; opacity: 0; animation: jdFadeIn 0.6s ease 1s forwards;
 }
 @keyframes jdFadeIn { to { opacity: 1; } }
 
@@ -592,8 +612,8 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--mono);
 }
 .jd-terminal-body {
-  padding: 20px 24px; font-family: var(--mono); font-size: 12px;
-  line-height: 1.9; color: var(--muted2);
+  padding: 16px 24px; font-family: var(--mono); font-size: 12px;
+  line-height: 1.8; color: var(--muted2);
 }
 .jd-terminal-body .t-comment { color: #5c6370; }
 .jd-terminal-body .t-keyword { color: #c678dd; }
@@ -609,7 +629,7 @@ a { color: inherit; text-decoration: none; }
 .jd-terminal-line .char { opacity: 0; }
 
 .jd-progress-section {
-  margin-top: 0; padding: 18px 24px; background: var(--bg3);
+  margin-top: 0; padding: 14px 24px; background: var(--bg3);
   border-top: 1px solid var(--border);
   border-radius: 0 0 10px 10px;
   opacity: 0; max-height: 0; overflow: hidden;
@@ -618,9 +638,9 @@ a { color: inherit; text-decoration: none; }
 .jd-progress-section.visible { opacity: 1; max-height: 300px; }
 .jd-progress-label {
   font-size: 10px; color: var(--muted); font-family: var(--mono);
-  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 12px;
 }
-.jd-bars { display: flex; flex-direction: column; gap: 12px; }
+.jd-bars { display: flex; flex-direction: column; gap: 10px; }
 .jd-bar-row { display: flex; align-items: center; gap: 12px; }
 .jd-bar-label {
   width: 110px; text-align: right; font-size: 11px; color: var(--muted2);
@@ -661,7 +681,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .jd-footer-line {
-  margin-top: 40px; display: flex; align-items: center; justify-content: center;
+  margin-top: 24px; display: flex; align-items: center; justify-content: center;
   gap: 10px; font-size: 12px; color: var(--muted); letter-spacing: 0.12em;
   text-transform: uppercase; font-weight: 500; opacity: 0;
   transition: opacity 0.6s ease;
@@ -694,8 +714,12 @@ a { color: inherit; text-decoration: none; }
 }
 .exp-company-block {}
 .exp-company {
-  font-size: clamp(22px, 3vw, 34px); font-weight: 700;
-  letter-spacing: -.03em; color: var(--accent);
+  font-size: clamp(28px, 3.8vw, 42px); font-weight: 900;
+  letter-spacing: -.03em;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--red) 0%, #ff6b6b 30%, var(--accent) 60%, #cccccc 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 .exp-role-line {
   font-size: 13px; color: var(--muted2); margin-top: 6px;
@@ -708,19 +732,49 @@ a { color: inherit; text-decoration: none; }
 }
 
 .duty-grid {
-  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px;
-  background: var(--border); border: 1px solid var(--border);
-  border-radius: 10px; overflow: hidden; margin-bottom: 56px;
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px;
+  margin-bottom: 56px;
 }
 .duty-cell {
-  background: var(--bg2); padding: 24px 26px;
-  font-size: 13px; color: var(--muted2); line-height: 1.7;
-  transition: background .2s;
+  display: flex; align-items: stretch; gap: 16px;
+  background: var(--bg2);
+  padding: 24px 22px;
+  transition: all .35s cubic-bezier(.23,1,.32,1);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
 }
-.duty-cell:hover { background: var(--bg3); color: var(--text); }
-.duty-cell::before {
-  content: '\2192 '; color: var(--muted);
+.duty-cell::after {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: rgba(255,255,255,0.6);
+  opacity: 0;
+  transition: opacity .35s, box-shadow .35s;
 }
+.duty-cell:hover {
+  background: var(--bg3);
+  padding-left: 30px;
+}
+.duty-cell:hover::after {
+  opacity: 1;
+  box-shadow: 0 0 20px rgba(255,255,255,0.15);
+}
+.duty-num {
+  font-family: var(--mono);
+  font-size: 36px; font-weight: 800;
+  line-height: 1;
+  color: rgba(255,255,255,0.08);
+  min-width: 44px;
+  transition: color .35s;
+}
+.duty-cell:hover .duty-num { color: rgba(255,255,255,0.18); }
+.duty-text {
+  font-size: 13px; color: var(--muted2); line-height: 1.75;
+  align-self: center;
+  transition: color .3s;
+}
+.duty-cell:hover .duty-text { color: var(--text); }
 
 .proj-section-title {
   font-size: 11px; font-weight: 600; letter-spacing: .14em;
@@ -786,6 +840,204 @@ a { color: inherit; text-decoration: none; }
 .proj-card.full .proj-desc-list li strong { color: var(--text); font-weight: 500; }
 
 /* ═══════════════════════════════════════════
+   PROJECT CAROUSEL — 3D PERSPECTIVE
+═══════════════════════════════════════════ */
+.carousel-wrapper {
+  position: relative;
+  width: 100%;
+  perspective: 1200px;
+  padding: 40px 0 48px;
+}
+.carousel-track {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  height: 360px;
+}
+.carousel-slide {
+  position: absolute;
+  width: 480px;
+  max-width: 80vw;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+  z-index: 1;
+}
+.carousel-slide .proj-card {
+  height: 280px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.carousel-slide .proj-result {
+  margin-top: auto;
+}
+/* Center (active) */
+.carousel-slide.pos-center {
+  z-index: 5;
+  transform: translateX(0) translateZ(60px) scale(1);
+  opacity: 1;
+}
+.carousel-slide.pos-center .proj-card {
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+/* Left neighbor */
+.carousel-slide.pos-left {
+  z-index: 3;
+  transform: translateX(-50%) translateZ(-40px) rotateY(10deg) scale(0.85);
+  opacity: 0.55;
+}
+/* Right neighbor */
+.carousel-slide.pos-right {
+  z-index: 3;
+  transform: translateX(50%) translateZ(-40px) rotateY(-10deg) scale(0.85);
+  opacity: 0.55;
+}
+/* Far left */
+.carousel-slide.pos-far-left {
+  z-index: 1;
+  transform: translateX(-120%) translateZ(-80px) rotateY(20deg) scale(0.7);
+  opacity: 0;
+  pointer-events: none;
+}
+/* Far right */
+.carousel-slide.pos-far-right {
+  z-index: 1;
+  transform: translateX(120%) translateZ(-80px) rotateY(-20deg) scale(0.7);
+  opacity: 0;
+  pointer-events: none;
+}
+/* Hover effect on any visible card */
+.carousel-slide:not(.pos-far-left):not(.pos-far-right) .proj-card {
+  border-color: var(--border);
+  transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.carousel-slide:not(.pos-far-left):not(.pos-far-right):hover .proj-card {
+  transform: scale(1.08) translateY(-8px);
+  border-color: rgba(255,255,255,0.25);
+  box-shadow:
+    0 20px 60px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+.carousel-slide.pos-center:hover .proj-card {
+  transform: scale(1.05) translateY(-6px);
+}
+/* Arrow buttons — simple triangle, far outside */
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0; height: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  z-index: 20;
+  cursor: pointer;
+  transition: all .3s;
+  opacity: 0.4;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+.carousel-arrow.prev {
+  left: -80px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 18px solid var(--muted2);
+}
+.carousel-arrow.next {
+  right: -80px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 18px solid var(--muted2);
+}
+.carousel-arrow:hover {
+  opacity: 1;
+  filter: drop-shadow(0 2px 8px rgba(255,255,255,0.2));
+}
+.carousel-arrow.prev:hover {
+  border-right-color: var(--accent);
+}
+.carousel-arrow.next:hover {
+  border-left-color: var(--accent);
+}
+/* Dots */
+.carousel-dots {
+  display: flex; gap: 8px;
+  justify-content: center;
+  margin-top: 32px;
+}
+.carousel-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border2);
+  border: none;
+  cursor: pointer;
+  transition: all .3s;
+  padding: 0;
+}
+.carousel-dot.active {
+  background: var(--accent);
+  width: 24px;
+  border-radius: 4px;
+}
+/* Mobile carousel */
+@media (max-width: 900px) {
+  .carousel-slide { width: 85vw; }
+  .carousel-track { height: 300px; }
+  .carousel-slide.pos-left { transform: translateX(-65%) rotateY(8deg) scale(0.82); }
+  .carousel-slide.pos-right { transform: translateX(65%) rotateY(-8deg) scale(0.82); }
+  .carousel-arrow.prev { left: -50px; }
+  .carousel-arrow.next { right: -50px; }
+  .carousel-arrow.prev { border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 14px solid var(--muted2); }
+  .carousel-arrow.next { border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 14px solid var(--muted2); }
+  .carousel-slide .proj-card { height: auto; min-height: 240px; }
+}
+
+/* ═══════════════════════════════════════════
+   COMPACT SECTION (for Dahua / Hikvision pages)
+═══════════════════════════════════════════ */
+.section-compact {
+  padding: 48px 60px 0;
+}
+.section-compact .section-label {
+  margin-bottom: 20px;
+}
+.exp-header-compact {
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+}
+.section-compact .duty-grid {
+  margin-bottom: 28px;
+}
+.section-compact .duty-cell {
+  padding: 20px 18px;
+  gap: 14px;
+}
+.section-compact .duty-num {
+  font-size: 30px;
+  min-width: 38px;
+}
+.section-compact .carousel-wrapper {
+  padding: 24px 0 32px;
+}
+.section-compact .carousel-track {
+  height: 320px;
+}
+.section-compact .carousel-dots {
+  margin-top: 20px;
+}
+.section-compact footer {
+  margin-top: 16px;
+}
+@media (max-width: 900px) {
+  .section-compact {
+    padding: 40px 24px 0;
+  }
+  .section-compact .carousel-track {
+    height: 280px;
+  }
+}
+
+/* ═══════════════════════════════════════════
    FOOTER
 ═══════════════════════════════════════════ */
 footer {
@@ -830,7 +1082,9 @@ footer {
   #page-hero, .section { padding-left: 24px; padding-right: 24px; }
   .hero-h1 { font-size: 44px; }
   .about-grid { grid-template-columns: 1fr; gap: 48px; }
-  .duty-grid { grid-template-columns: 1fr; }
+  .duty-grid { grid-template-columns: 1fr; gap: 2px; }
+  .duty-grid .duty-cell { flex-direction: row; }
+  .duty-grid .duty-num { font-size: 42px; min-width: 54px; }
   .proj-grid { grid-template-columns: 1fr; }
   .proj-card.full .proj-desc-list { grid-template-columns: 1fr; gap: 12px; }
   .exp-header { flex-direction: column; gap: 16px; }
@@ -886,7 +1140,7 @@ footer {
     </div>
     <p class="hero-desc" id="heroDesc"></p>
     <div class="hero-cta">
-      <a href="#" class="btn-primary" id="btnAboutMe">About Me</a>
+      <a href="#" class="btn-primary" id="btnAboutMe">About Me <span class="btn-arrow">➜</span></a>
     </div>
   </div>
   <!-- Profile photo — bottom-right -->
@@ -1088,7 +1342,7 @@ footer {
      PAGE 3: WORK — DAHUA
 ═══════════════════════════════════════════ -->
 <div id="page-dahua" class="page-content">
-  <section class="section" style="border-top:none; padding-top:80px;">
+  <section class="section section-compact" style="border-top:none;">
     <div class="section-inner">
       <div class="nav-row reveal">
         <a href="#" class="back-btn" id="prevToJd"><span class="arrow">←</span> Current</a>
@@ -1097,7 +1351,7 @@ footer {
 
       <div class="section-label"><span>03</span> Dahua Technology</div>
 
-      <div class="exp-header reveal">
+      <div class="exp-header exp-header-compact reveal">
         <div class="exp-company-block">
           <div class="exp-company">Dahua Technology</div>
           <div class="exp-role-line">Solution Engineer · Commercial Retail &amp; Industrial · Beijing Branch</div>
@@ -1106,60 +1360,82 @@ footer {
       </div>
 
       <div class="duty-grid reveal">
-        <div class="duty-cell">Led AIoT requirement analysis, feasibility study, and optimization across commercial and industrial verticals.</div>
-        <div class="duty-cell">Orchestrated end-to-end POCs for top-tier clients including Computer Vision, AI Marketing, and Physical Security.</div>
-        <div class="duty-cell">Successfully commercialized 2 custom project-based solutions, driving them from concept to batch orders.</div>
+        <div class="duty-cell">
+          <span class="duty-num">01</span>
+          <span class="duty-text">Led AIoT requirement analysis, feasibility study, and optimization across commercial and industrial verticals.</span>
+        </div>
+        <div class="duty-cell">
+          <span class="duty-num">02</span>
+          <span class="duty-text">Orchestrated end-to-end POCs for top-tier clients including Computer Vision, AI Marketing, and Physical Security.</span>
+        </div>
+        <div class="duty-cell">
+          <span class="duty-num">03</span>
+          <span class="duty-text">Successfully commercialized 2 custom project-based solutions, driving them from concept to batch orders.</span>
+        </div>
       </div>
 
-      <div class="proj-section-title reveal">Key Projects</div>
-      <div class="proj-grid">
-        <div class="proj-card reveal">
-          <div class="proj-card-top">
-            <span class="proj-idx">Project 01</span>
-            <span class="proj-badge badge-blue">SaaS + CV</span>
+      <div class="proj-section-title reveal" style="margin-bottom:12px;">Key Projects</div>
+      <div class="carousel-wrapper" id="dahuaCarousel">
+        <button class="carousel-arrow prev" id="dahuaPrev">‹</button>
+        <button class="carousel-arrow next" id="dahuaNext">›</button>
+        <div class="carousel-track" id="dahuaTrack">
+          <div class="carousel-slide active" data-slide="0">
+            <div class="proj-card">
+              <div class="proj-card-top">
+                <span class="proj-idx">Project 01</span>
+                <span class="proj-badge badge-blue">SaaS + CV</span>
+              </div>
+              <div class="proj-name">POPMART Intelligent Store Operations</div>
+              <div class="proj-desc">
+                Designed a hybrid AI workflow combining Edge AI-Box and Cloud SaaS for intelligent retail operations.
+                Standardized end-to-end SOPs across POPMART store network.
+              </div>
+              <div class="proj-result">
+                <span class="proj-result-label">Result</span>
+                <span class="proj-result-val">30% average POS order growth · Standard SOP rolled out chain-wide</span>
+              </div>
+            </div>
           </div>
-          <div class="proj-name">POPMART Intelligent Store Operations</div>
-          <div class="proj-desc">
-            Designed a hybrid AI workflow combining Edge AI-Box and Cloud SaaS for intelligent retail operations.
-            Standardized end-to-end SOPs across POPMART store network.
+
+          <div class="carousel-slide" data-slide="1">
+            <div class="proj-card">
+              <div class="proj-card-top">
+                <span class="proj-idx">Project 02</span>
+                <span class="proj-badge badge-purple">High Concurrency</span>
+              </div>
+              <div class="proj-name">Physical Security Tech-Defense</div>
+              <div class="proj-desc">
+                Optimized model targeting and vector ratio mechanisms for high-concurrency physical security scenarios.
+                Key clients: ByteDance (Dazhongsi), BOE Hospital.
+              </div>
+              <div class="proj-result">
+                <span class="proj-result-label">Result</span>
+                <span class="proj-result-val">90%+ Recall/Precision · QPS improved to 3 frames/s</span>
+              </div>
+            </div>
           </div>
-          <div class="proj-result">
-            <span class="proj-result-label">Result</span>
-            <span class="proj-result-val">30% average POS order growth · Standard SOP rolled out chain-wide</span>
+
+          <div class="carousel-slide" data-slide="2">
+            <div class="proj-card">
+              <div class="proj-card-top">
+                <span class="proj-idx">Project 03</span>
+                <span class="proj-badge badge-green">Cost Optimization</span>
+              </div>
+              <div class="proj-name">Ecosystem Partnership — HAIRONG</div>
+              <div class="proj-desc">
+                Aligned and defined hardware-module integration specifications for the HAIRONG ecosystem partner. Drove algorithm optimization and cross-team software-hardware alignment to achieve system-level cost reduction.
+              </div>
+              <div class="proj-result">
+                <span class="proj-result-label">Result</span>
+                <span class="proj-result-val">20% system cost reduction · Expanded order pipeline</span>
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="proj-card reveal reveal-delay-1">
-          <div class="proj-card-top">
-            <span class="proj-idx">Project 02</span>
-            <span class="proj-badge badge-purple">High Concurrency</span>
-          </div>
-          <div class="proj-name">Physical Security Tech-Defense</div>
-          <div class="proj-desc">
-            Optimized model targeting and vector ratio mechanisms for high-concurrency physical security scenarios.
-            Key clients: ByteDance (Dazhongsi), BOE Hospital.
-          </div>
-          <div class="proj-result">
-            <span class="proj-result-label">Result</span>
-            <span class="proj-result-val">90%+ Recall/Precision · QPS improved to 3 frames/s</span>
-          </div>
-        </div>
-
-        <div class="proj-card full reveal reveal-delay-2">
-          <div class="proj-card-top">
-            <span class="proj-idx">Project 03</span>
-            <span class="proj-badge badge-green">Cost Optimization</span>
-          </div>
-          <div class="proj-name">Ecosystem Partnership — HAIRONG</div>
-          <ul class="proj-desc-list">
-            <li>Defined protocol documentation and hardware-module model integration specifications for the HAIRONG ecosystem partner.</li>
-            <li>Facilitated multi-party hardware and software alignment to achieve system-level cost reduction targets.</li>
-            <li>Secured batch orders following successful commercialization of the integrated solution.</li>
-          </ul>
-          <div class="proj-result" style="margin-top:20px">
-            <span class="proj-result-label">Result</span>
-            <span class="proj-result-val">20% total system cost reduction · Batch orders secured</span>
-          </div>
+        <div class="carousel-dots" id="dahuaDots">
+          <button class="carousel-dot active" data-dot="0"></button>
+          <button class="carousel-dot" data-dot="1"></button>
+          <button class="carousel-dot" data-dot="2"></button>
         </div>
       </div>
     </div>
@@ -1177,7 +1453,7 @@ footer {
      PAGE 3: WORK — HIKVISION
 ═══════════════════════════════════════════ -->
 <div id="page-hikvision" class="page-content">
-  <section class="section" style="border-top:none; padding-top:80px;">
+  <section class="section section-compact" style="border-top:none;">
     <div class="section-inner">
       <div class="nav-row reveal">
         <a href="#" class="back-btn" id="prevToDahua"><span class="arrow">←</span> Dahua Experience</a>
@@ -1186,7 +1462,7 @@ footer {
 
       <div class="section-label"><span>04</span> Hikvision</div>
 
-      <div class="exp-header reveal">
+      <div class="exp-header exp-header-compact reveal">
         <div class="exp-company-block">
           <div class="exp-company">Hikvision</div>
           <div class="exp-role-line">Solution Marketing Engineer · Hangzhou Branch</div>
@@ -1195,35 +1471,40 @@ footer {
       </div>
 
       <div class="duty-grid reveal" style="grid-template-columns: 1fr 1fr;">
-        <div class="duty-cell">Managed large-scale project design, technical bidding strategies, and bidding document preparation for key healthcare accounts.</div>
-        <div class="duty-cell">Handled multi-party system integration, tech-briefing, and coordination across infrastructure, network, and application layers.</div>
-      </div>
-
-      <div class="proj-section-title reveal">Key Project</div>
-      <div class="proj-grid">
-        <div class="proj-card full reveal">
-          <div class="proj-card-top">
-            <span class="proj-idx">Project</span>
-            <span class="proj-badge badge-amber">Infrastructure</span>
-          </div>
-          <div class="proj-name">Zhejiang Provincial People's Hospital — Fuyang Phase I</div>
-          <ul class="proj-desc-list">
-            <li><strong>Design:</strong> Analyzed network/infrastructure architecture and produced detailed project budget.</li>
-            <li><strong>Strategy:</strong> Formulated technical bidding strategies and comprehensive documentation for competitive tender.</li>
-            <li><strong>Support:</strong> Handled technology briefings and coordinated multi-party system integration throughout project delivery.</li>
-          </ul>
+        <div class="duty-cell">
+          <span class="duty-num">01</span>
+          <span class="duty-text">Managed large-scale project design, technical bidding strategies, and bidding document preparation for key healthcare accounts.</span>
+        </div>
+        <div class="duty-cell">
+          <span class="duty-num">02</span>
+          <span class="duty-text">Handled multi-party system integration, tech-briefing, and coordination across infrastructure, network, and application layers.</span>
         </div>
       </div>
 
-      <!-- Competencies -->
-      <div class="reveal" style="margin-top: 16px;">
-        <div class="skill-title">Competencies</div>
-        <div class="skill-chips">
-          <span class="chip">Architecture Design</span>
-          <span class="chip">Bidding Strategy</span>
-          <span class="chip">Infrastructure Planning</span>
-          <span class="chip">Budgeting</span>
-          <span class="chip">Multi-party Coordination</span>
+      <div class="proj-section-title reveal" style="margin-bottom:12px;">Key Project</div>
+      <div class="carousel-wrapper" id="hikvisionCarousel">
+        <button class="carousel-arrow prev" id="hikvisionPrev">‹</button>
+        <button class="carousel-arrow next" id="hikvisionNext">›</button>
+        <div class="carousel-track" id="hikvisionTrack">
+          <div class="carousel-slide active" data-slide="0">
+            <div class="proj-card">
+              <div class="proj-card-top">
+                <span class="proj-idx">Project 01</span>
+                <span class="proj-badge badge-amber">Infrastructure</span>
+              </div>
+              <div class="proj-name">Zhejiang Provincial People's Hospital — Fuyang Phase I</div>
+              <div class="proj-desc">
+                Analyzed network and infrastructure architecture for the hospital's Phase I expansion. Formulated technical bidding strategies and comprehensive documentation for competitive tender. Coordinated multi-party system integration across infrastructure, network, and application layers.
+              </div>
+              <div class="proj-result">
+                <span class="proj-result-label">Result</span>
+                <span class="proj-result-val">Project budget finalized · Competitive tender secured</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="carousel-dots" id="hikvisionDots">
+          <button class="carousel-dot active" data-dot="0"></button>
         </div>
       </div>
     </div>
@@ -1627,6 +1908,90 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 </script>
 
 <!-- ═════════════════════════════════════════
+     PROJECT CAROUSEL (Reusable)
+══════════════════════════════════════════ -->
+<script>
+function initCarousel(wrapperId, prevId, nextId, dotsId, trackId) {
+  const wrapper = document.getElementById(wrapperId);
+  if (!wrapper) return;
+  const slides = wrapper.querySelectorAll('.carousel-slide');
+  const dots = wrapper.querySelectorAll('.carousel-dot');
+  const prevBtn = document.getElementById(prevId);
+  const nextBtn = document.getElementById(nextId);
+  const total = slides.length;
+  let current = 0;
+
+  // Single slide — show arrows/dots but disable navigation
+  if (total <= 1) {
+    prevBtn.style.opacity = '0.3';
+    prevBtn.style.pointerEvents = 'none';
+    nextBtn.style.opacity = '0.3';
+    nextBtn.style.pointerEvents = 'none';
+    slides.forEach(s => s.classList.add('pos-center','active'));
+    return;
+  }
+
+  function updatePositions() {
+    slides.forEach((s, i) => {
+      s.classList.remove('pos-center','pos-left','pos-right','pos-far-left','pos-far-right','active');
+      const diff = i - current;
+      if (diff === 0) s.classList.add('pos-center','active');
+      else if (diff === -1) s.classList.add('pos-left');
+      else if (diff === 1) s.classList.add('pos-right');
+      else if (diff < -1) s.classList.add('pos-far-left');
+      else s.classList.add('pos-far-right');
+    });
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+  }
+
+  function goTo(idx) {
+    if (idx < 0) idx = total - 1;
+    if (idx >= total) idx = 0;
+    current = idx;
+    updatePositions();
+  }
+
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+  dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.dot)));
+
+  slides.forEach((s, i) => {
+    s.addEventListener('click', () => {
+      if (i !== current) goTo(i);
+    });
+  });
+
+  let startX = 0, diffX = 0, dragging = false;
+  wrapper.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX; dragging = true;
+  }, { passive: true });
+  wrapper.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    diffX = e.touches[0].clientX - startX;
+  }, { passive: true });
+  wrapper.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    if (Math.abs(diffX) > 50) {
+      diffX < 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+    diffX = 0;
+  });
+
+  document.addEventListener('keydown', e => {
+    if (!wrapper.offsetParent) return;
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+  });
+
+  updatePositions();
+}
+
+initCarousel('dahuaCarousel', 'dahuaPrev', 'dahuaNext', 'dahuaDots', 'dahuaTrack');
+initCarousel('hikvisionCarousel', 'hikvisionPrev', 'hikvisionNext', 'hikvisionDots', 'hikvisionTrack');
+</script>
+
+<!-- ═════════════════════════════════════════
      MOSAIC — MOUSE-FOLLOW REVEAL (Black/Gray tones)
 ══════════════════════════════════════════ -->
 <script>
@@ -1730,16 +2095,8 @@ document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
   let mouseInZone = false;
 
   document.addEventListener('mousemove', (e) => {
-    const zoneRect = zone.getBoundingClientRect();
-    if (e.clientX > window.innerWidth * 0.35) {
-      if (!mouseInZone) mouseInZone = true;
-      updateMosaic(e.clientX, e.clientY);
-    } else {
-      if (mouseInZone) {
-        mouseInZone = false;
-        hideAll();
-      }
-    }
+    if (!mouseInZone) mouseInZone = true;
+    updateMosaic(e.clientX, e.clientY);
   });
 
   document.addEventListener('mouseleave', () => {
