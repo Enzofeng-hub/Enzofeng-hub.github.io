@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +24,7 @@
   --muted2:   #888;
   --accent:   #ffffff;
   --green:    #3ecf8e;
+  --red:      #e53935;
   --cyan:     #7dd3fc;
   --purple:   #c084fc;
   --amber:    #fbbf24;
@@ -523,6 +525,166 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ═══════════════════════════════════════════
+   JD LOGISTICS PAGE
+═══════════════════════════════════════════ */
+.jd-page-wrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 60px 40px;
+  position: relative;
+}
+.jd-company {
+  font-size: clamp(36px, 5vw, 52px); font-weight: 900; letter-spacing: -0.04em;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--red) 0%, #ff6b6b 30%, var(--accent) 60%, #cccccc 100%);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.jd-meta-row {
+  display: flex; align-items: center; gap: 16px; margin-top: 16px; flex-wrap: wrap;
+}
+.jd-meta-role { font-size: 14px; color: var(--muted2); }
+.jd-meta-period {
+  font-size: 11px; color: var(--muted); border: 1px solid var(--border2);
+  padding: 5px 12px; border-radius: 6px; background: var(--bg2);
+  font-family: var(--mono); letter-spacing: 0.02em;
+}
+.jd-meta-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--red);
+  border: 1px solid rgba(229,57,53,0.3); padding: 4px 10px;
+  border-radius: 6px; background: rgba(229,57,53,0.06);
+  letter-spacing: 0.04em;
+}
+.jd-meta-badge .pulse-dot {
+  width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+  animation: jdPulse 2s ease-in-out infinite;
+}
+@keyframes jdPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.7); }
+}
+
+.jd-divider {
+  width: 40px; height: 1px; background: var(--border2);
+  margin: 40px 0; opacity: 0; animation: jdFadeIn 0.6s ease 1s forwards;
+}
+@keyframes jdFadeIn { to { opacity: 1; } }
+
+.jd-terminal-box {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  overflow: hidden; opacity: 0; animation: jdFadeSlideUp 0.4s ease 1s forwards;
+}
+@keyframes jdFadeSlideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.jd-terminal-bar {
+  display: flex; align-items: center; gap: 6px; padding: 10px 16px;
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+}
+.jd-terminal-dot { width: 9px; height: 9px; border-radius: 50%; }
+.jd-terminal-dot.r { background: #ff5f56; }
+.jd-terminal-dot.y { background: #ffbd2e; }
+.jd-terminal-dot.g { background: #27c93f; }
+.jd-terminal-title {
+  flex: 1; text-align: center; font-size: 10px; color: var(--muted);
+  font-family: var(--mono);
+}
+.jd-terminal-body {
+  padding: 20px 24px; font-family: var(--mono); font-size: 12px;
+  line-height: 1.9; color: var(--muted2);
+}
+.jd-terminal-body .t-comment { color: #5c6370; }
+.jd-terminal-body .t-keyword { color: #c678dd; }
+.jd-terminal-body .t-string { color: #98c379; }
+.jd-terminal-body .t-func { color: #61afef; }
+.jd-terminal-body .t-cursor {
+  display: inline-block; width: 7px; height: 14px; background: var(--green);
+  vertical-align: text-bottom; animation: jdBlink 1s step-end infinite; margin-left: 2px;
+}
+@keyframes jdBlink { 50% { opacity: 0; } }
+.jd-terminal-line { opacity: 0; }
+.jd-terminal-line.visible { opacity: 1; transition: opacity 0.15s; }
+.jd-terminal-line .char { opacity: 0; }
+
+.jd-progress-section {
+  margin-top: 0; padding: 18px 24px; background: var(--bg3);
+  border-top: 1px solid var(--border);
+  border-radius: 0 0 10px 10px;
+  opacity: 0; max-height: 0; overflow: hidden;
+  transition: opacity 0.5s ease, max-height 0.5s ease;
+}
+.jd-progress-section.visible { opacity: 1; max-height: 300px; }
+.jd-progress-label {
+  font-size: 10px; color: var(--muted); font-family: var(--mono);
+  letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 16px;
+}
+.jd-bars { display: flex; flex-direction: column; gap: 12px; }
+.jd-bar-row { display: flex; align-items: center; gap: 12px; }
+.jd-bar-label {
+  width: 110px; text-align: right; font-size: 11px; color: var(--muted2);
+  font-family: var(--mono); flex-shrink: 0;
+}
+.jd-bar-track {
+  flex: 1; height: 3px; background: var(--bg); border-radius: 2px; overflow: hidden;
+}
+.jd-bar-fill {
+  height: 100%; border-radius: 2px; width: 0;
+  position: relative; display: block;
+  transition: width 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.jd-bar-fill::after {
+  content: ''; position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 100vw;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+  animation: jdBarShimmer 2.5s ease-in-out infinite;
+  border-radius: 2px; pointer-events: none;
+}
+@keyframes jdBarShimmer {
+  0% { transform: translateX(-100vw); }
+  100% { transform: translateX(100vw); }
+}
+.jd-bar-fill.active { animation: jdBarGlow 2.5s ease-in-out infinite; }
+@keyframes jdBarGlow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
+.jd-bar-fill.f1 { background: linear-gradient(90deg, var(--red), #ff6b6b); }
+.jd-bar-fill.f2 { background: linear-gradient(90deg, var(--green), #7dd3fc); }
+.jd-bar-fill.f3 { background: linear-gradient(90deg, #c084fc, #7dd3fc); }
+.jd-bar-fill.f4 { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+.jd-bar-pct {
+  width: 42px; text-align: left; font-size: 11px; color: var(--muted);
+  font-family: var(--mono); flex-shrink: 0;
+}
+
+.jd-footer-line {
+  margin-top: 40px; display: flex; align-items: center; justify-content: center;
+  gap: 10px; font-size: 12px; color: var(--muted); letter-spacing: 0.12em;
+  text-transform: uppercase; font-weight: 500; opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.jd-footer-line.visible { opacity: 1; }
+.jd-footer-line .cs-dot {
+  width: 3px; height: 3px; border-radius: 50%; background: var(--red);
+  animation: jdPulse 1.5s ease-in-out infinite;
+}
+.jd-footer-line .cs-dot:nth-child(2) { animation-delay: 0.2s; }
+.jd-footer-line .cs-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@media (max-width: 640px) {
+  .jd-page-wrap { padding: 40px 20px; }
+  .jd-company { font-size: 34px; }
+  .jd-meta-row { gap: 8px; }
+  .jd-terminal-body { font-size: 10px; padding: 14px 16px; }
+  .jd-progress-section { padding: 14px 16px; }
+  .jd-bar-label { width: 80px; font-size: 10px; }
+  .jd-bar-pct { width: 36px; font-size: 10px; }
+}
+
+/* ═══════════════════════════════════════════
    EXPERIENCE
 ═══════════════════════════════════════════ */
 .exp-header {
@@ -716,10 +878,10 @@ footer {
       <span class="line2">Feng Ke.</span>
     </h1>
     <div class="hero-tags">
+      <span class="hero-tag">New PM</span>
       <span class="hero-tag">Solution Engineer</span>
       <span class="hero-tag">AIoT Systems</span>
       <span class="hero-tag">AI Integration</span>
-      <span class="hero-tag">Project Delivery</span>
       <span class="hero-tag">Beijing</span>
     </div>
     <p class="hero-desc" id="heroDesc"></p>
@@ -759,7 +921,7 @@ footer {
     <div class="section-inner">
       <a href="#" class="back-btn" id="backToHero"><span class="arrow">←</span> Back</a>
 
-      <div class="section-label"><span>01</span> About</div>
+      <div class="section-label"><span>02</span> About</div>
 
       <div class="about-grid">
         <!-- left -->
@@ -838,17 +1000,102 @@ footer {
 </div>
 
 <!-- ══════════════════════════════════════════
-     PAGE 2: WORK — DAHUA
+     PAGE 2: WORK — JD LOGISTICS
+═══════════════════════════════════════════ -->
+<div id="page-jd" class="page-content">
+  <div class="jd-page-wrap">
+    <div style="width:100%; max-width:720px; position:relative;">
+
+      <div class="nav-row" style="margin-bottom:24px; opacity:0;" id="jdNavRow">
+        <a href="#" class="back-btn" id="backToAboutFromJd"><span class="arrow">←</span> Back to About</a>
+        <a href="#" class="back-btn next-btn" id="nextToDahua">Previous Experience <span class="arrow">→</span></a>
+      </div>
+
+      <div class="jd-company">JD Logistics</div>
+
+      <div class="jd-meta-row">
+        <span class="jd-meta-role">Product Manager · General AI Platform · Beijing</span>
+        <span class="jd-meta-period">2026.04 — Present</span>
+        <span class="jd-meta-badge"><span class="pulse-dot"></span> onboarding</span>
+      </div>
+
+      <div class="jd-divider"></div>
+
+      <div class="jd-terminal-box">
+        <div class="jd-terminal-bar">
+          <span class="jd-terminal-dot r"></span>
+          <span class="jd-terminal-dot y"></span>
+          <span class="jd-terminal-dot g"></span>
+          <span class="jd-terminal-title">jd-logistics — building...</span>
+        </div>
+        <div class="jd-terminal-body" id="jdTermBody">
+          <div class="jd-terminal-line"><span class="t-comment">// JD Logistics — Product Manager</span></div>
+          <div class="jd-terminal-line"><span class="t-keyword">const</span> experience = {</div>
+          <div class="jd-terminal-line">  company: <span class="t-string">'JD Logistics'</span>,</div>
+          <div class="jd-terminal-line">  role: <span class="t-string">'Product Manager'</span>,</div>
+          <div class="jd-terminal-line">  domain: <span class="t-string">'Scene-based AI Applications'</span>,</div>
+          <div class="jd-terminal-line">  status: <span class="t-string">'onboarding'</span>,</div>
+          <div class="jd-terminal-line">};</div>
+          <div class="jd-terminal-line"></div>
+          <div class="jd-terminal-line"><span class="t-keyword">async function</span> <span class="t-func">buildExperience</span>() {</div>
+          <div class="jd-terminal-line">  <span class="t-keyword">const</span> projects = <span class="t-keyword">await</span> <span class="t-func">exploreDomain</span>();</div>
+          <div class="jd-terminal-line">  <span class="t-keyword">const</span> results = <span class="t-keyword">await</span> <span class="t-func">deliverValue</span>();</div>
+          <div class="jd-terminal-line">  <span class="t-keyword">return</span> <span class="t-func">renderPage</span>(experience, projects);</div>
+          <div class="jd-terminal-line">}</div>
+          <div class="jd-terminal-line"></div>
+          <div class="jd-terminal-line jd-terminal-last"><span class="t-func">buildExperience</span>();<span class="t-cursor"></span></div>
+        </div>
+
+        <div class="jd-progress-section" id="jdProgressSection">
+          <div class="jd-progress-label">Build Progress</div>
+          <div class="jd-bars" id="jdBars">
+            <div class="jd-bar-row">
+              <div class="jd-bar-label">onboarding</div>
+              <div class="jd-bar-track"><div class="jd-bar-fill f1" style="width:0%"></div></div>
+              <div class="jd-bar-pct">0%</div>
+            </div>
+            <div class="jd-bar-row">
+              <div class="jd-bar-label">domain_explore</div>
+              <div class="jd-bar-track"><div class="jd-bar-fill f2" style="width:0%"></div></div>
+              <div class="jd-bar-pct">0%</div>
+            </div>
+            <div class="jd-bar-row">
+              <div class="jd-bar-label">projects</div>
+              <div class="jd-bar-track"><div class="jd-bar-fill f3" style="width:0%"></div></div>
+              <div class="jd-bar-pct">0%</div>
+            </div>
+            <div class="jd-bar-row">
+              <div class="jd-bar-label">results</div>
+              <div class="jd-bar-track"><div class="jd-bar-fill f4" style="width:0%"></div></div>
+              <div class="jd-bar-pct">0%</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="jd-footer-line" id="jdFooterLine">
+        <span class="cs-dot"></span>
+        <span class="cs-dot"></span>
+        <span class="cs-dot"></span>
+        content generating · stay tuned
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     PAGE 3: WORK — DAHUA
 ═══════════════════════════════════════════ -->
 <div id="page-dahua" class="page-content">
   <section class="section" style="border-top:none; padding-top:80px;">
     <div class="section-inner">
       <div class="nav-row reveal">
-        <a href="#" class="back-btn" id="backToAboutFromDahua"><span class="arrow">←</span> Back to About</a>
-        <a href="#" class="back-btn next-btn" id="nextToHikvision">Hikvision <span class="arrow">→</span></a>
+        <a href="#" class="back-btn" id="prevToJd"><span class="arrow">←</span> Current</a>
+        <a href="#" class="back-btn next-btn" id="nextToHikvision">Hikvision Experience <span class="arrow">→</span></a>
       </div>
 
-      <div class="section-label"><span>02</span> Dahua Technology</div>
+      <div class="section-label"><span>03</span> Dahua Technology</div>
 
       <div class="exp-header reveal">
         <div class="exp-company-block">
@@ -933,11 +1180,11 @@ footer {
   <section class="section" style="border-top:none; padding-top:80px;">
     <div class="section-inner">
       <div class="nav-row reveal">
-        <a href="#" class="back-btn" id="prevToDahua"><span class="arrow">←</span> Dahua</a>
+        <a href="#" class="back-btn" id="prevToDahua"><span class="arrow">←</span> Dahua Experience</a>
         <a href="#" class="back-btn" id="backToAboutFromHikvision">Back to About</a>
       </div>
 
-      <div class="section-label"><span>03</span> Hikvision</div>
+      <div class="section-label"><span>04</span> Hikvision</div>
 
       <div class="exp-header reveal">
         <div class="exp-company-block">
@@ -1009,7 +1256,7 @@ footer {
     '<span class="lc-comment">// feng-ke.me — personal portfolio</span>',
     '<span class="lc-keyword">const</span> engineer = {',
     '  name: <span class="lc-string">\'Feng Ke\'</span>,',
-    '  role: <span class="lc-string">\'Solution Engineer\'</span>,',
+    '  role: <span class="lc-string">\'Product Manager / Solution Engineer\'</span>,',
     '  focus: [<span class="lc-string">\'AIoT\'</span>, <span class="lc-string">\'AI Integration\'</span>, <span class="lc-string">\'CV\'</span>],',
     '  location: <span class="lc-string">\'Beijing\'</span>,',
     '};',
@@ -1052,23 +1299,38 @@ footer {
 
   // Phase 2: Progress bar
   let progress = 0;
+  let paused = false;
   const statusTexts = [
     [0, 'Loading assets...'],
-    [20, 'Compiling experience...'],
-    [45, 'Rendering solutions...'],
-    [65, 'Optimizing performance...'],
+    [15, 'Compiling experience...'],
+    [35, 'Rendering solutions...'],
+    [55, 'Optimizing performance...'],
+    [72, 'Checking dependencies...'],
     [85, 'Almost ready...'],
-    [95, 'Finalizing...'],
+    [93, 'Finalizing...'],
     [100, 'Welcome.']
   ];
+  // Pause at these milestones (ms)
+  const pausePoints = { 35: 250, 93: 450 };
 
   function animateProgress() {
-    const speed = progress < 30 ? 1.2 : progress < 60 ? 0.8 : progress < 85 ? 1.2 : progress < 95 ? 0.35 : 0.15;
+    if (paused) return;
+    const speed = progress < 20 ? 0.6 : progress < 40 ? 0.45 : progress < 60 ? 0.55 : progress < 80 ? 0.35 : progress < 93 ? 0.2 : 0.08;
     progress += speed;
     if (progress > 100) progress = 100;
 
     bar.style.width = progress + '%';
     percentEl.textContent = Math.floor(progress) + '%';
+
+    // Check pause points
+    for (const p in pausePoints) {
+      if (Math.abs(progress - parseInt(p)) < speed && !pausePoints[p]._done) {
+        pausePoints[p]._done = true;
+        paused = true;
+        setTimeout(() => { paused = false; animateProgress(); }, pausePoints[p]);
+        return;
+      }
+    }
 
     for (let i = statusTexts.length - 1; i >= 0; i--) {
       if (progress >= statusTexts[i][0]) {
@@ -1103,9 +1365,10 @@ footer {
 (function() {
   const heroPage = document.getElementById('page-hero');
   const aboutPage = document.getElementById('page-about');
+  const jdPage = document.getElementById('page-jd');
   const dahuaPage = document.getElementById('page-dahua');
   const hikvisionPage = document.getElementById('page-hikvision');
-  const allContent = [aboutPage, dahuaPage, hikvisionPage];
+  const allContent = [aboutPage, jdPage, dahuaPage, hikvisionPage];
   let currentPage = 'hero';
 
   function hidePage(el, cb) {
@@ -1129,13 +1392,77 @@ footer {
     });
   }
 
+  // JD page specific: re-trigger terminal typing animation
+  function triggerJdAnimation() {
+    const navRow = document.getElementById('jdNavRow');
+    navRow.style.opacity = '1';
+    navRow.style.transition = 'opacity 0.4s ease';
+
+    // Reset terminal lines
+    const lines = document.querySelectorAll('#jdTermBody .jd-terminal-line');
+    lines.forEach(line => {
+      line.classList.remove('visible');
+      line.style.opacity = '0';
+      line.querySelectorAll('.char').forEach(c => c.style.opacity = '0');
+    });
+
+    // Re-wrap char spans (in case re-entering)
+    lines.forEach(line => {
+      const isLast = line.classList.contains('jd-terminal-last');
+      if (line.children.length === 0 && line.textContent.trim() === '') return;
+      if (isLast) {
+        Array.from(line.childNodes).forEach(node => {
+          if (node.nodeType === 1 && node.classList.contains('t-cursor')) return;
+          if (node.nodeType === 3 && node.textContent.trim()) jdWrapTextNode(node);
+          else if (node.nodeType === 1) {
+            Array.from(node.childNodes).forEach(child => {
+              if (child.nodeType === 3 && child.textContent.trim()) jdWrapTextNode(child);
+            });
+          }
+        });
+        return;
+      }
+      Array.from(line.childNodes).forEach(node => {
+        if (node.nodeType === 3 && node.textContent.trim()) jdWrapTextNode(node);
+        else if (node.nodeType === 1) {
+          Array.from(node.childNodes).forEach(child => {
+            if (child.nodeType === 3 && child.textContent.trim()) jdWrapTextNode(child);
+          });
+        }
+      });
+    });
+
+    // Reset progress section & footer
+    const progressSection = document.getElementById('jdProgressSection');
+    const footerLine = document.getElementById('jdFooterLine');
+    progressSection.classList.remove('visible');
+    footerLine.classList.remove('visible');
+    document.querySelectorAll('#jdBars .jd-bar-fill').forEach(bar => {
+      bar.style.transition = 'none';
+      bar.style.width = '0%';
+      bar.classList.remove('active');
+    });
+    document.querySelectorAll('#jdBars .jd-bar-pct').forEach(pct => pct.textContent = '0%');
+    // Re-enable transition after reset
+    requestAnimationFrame(() => {
+      document.querySelectorAll('#jdBars .jd-bar-fill').forEach(bar => {
+        bar.style.transition = '';
+      });
+    });
+
+    // Run terminal typing
+    jdRunTerminal();
+  }
+
   function switchPage(targetName) {
     const currentEl = currentPage === 'hero' ? heroPage :
                       currentPage === 'about' ? aboutPage :
+                      currentPage === 'jd' ? jdPage :
                       currentPage === 'dahua' ? dahuaPage : hikvisionPage;
 
     const targetEl = targetName === 'hero' ? heroPage :
                      targetName === 'about' ? aboutPage :
+                     targetName === 'jd' ? jdPage :
                      targetName === 'dahua' ? dahuaPage : hikvisionPage;
 
     hidePage(currentEl, () => {
@@ -1147,6 +1474,10 @@ footer {
         showContentPage(targetEl);
       }
       currentPage = targetName;
+      // Trigger JD animation when navigating to JD page
+      if (targetName === 'jd') {
+        setTimeout(triggerJdAnimation, 100);
+      }
     });
   }
 
@@ -1155,14 +1486,24 @@ footer {
     e.preventDefault(); switchPage('about');
   });
 
-  // About → Dahua
+  // About → JD
   document.getElementById('btnViewWork').addEventListener('click', (e) => {
+    e.preventDefault(); switchPage('jd');
+  });
+
+  // JD back → About
+  document.getElementById('backToAboutFromJd').addEventListener('click', (e) => {
+    e.preventDefault(); switchPage('about');
+  });
+
+  // JD next → Dahua
+  document.getElementById('nextToDahua').addEventListener('click', (e) => {
     e.preventDefault(); switchPage('dahua');
   });
 
-  // Dahua back → About
-  document.getElementById('backToAboutFromDahua').addEventListener('click', (e) => {
-    e.preventDefault(); switchPage('about');
+  // Dahua back → JD
+  document.getElementById('prevToJd').addEventListener('click', (e) => {
+    e.preventDefault(); switchPage('jd');
   });
 
   // Dahua next → Hikvision
@@ -1195,6 +1536,94 @@ const revealObserver = new IntersectionObserver(entries => {
   });
 }, { threshold: 0.08 });
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+/* ═════════════════════════════════════════
+   JD LOGISTICS — TERMINAL TYPING + PROGRESS BARS
+══════════════════════════════════════════ */
+(function() {
+  const CHAR_SPEED = 22;
+  const LINE_GAP = 80;
+
+  // Helper: wrap text node chars into <span class="char">
+  window.jdWrapTextNode = function(textNode) {
+    const text = textNode.textContent;
+    if (!text) return;
+    const parent = textNode.parentNode;
+    const chars = [];
+    for (let i = 0; i < text.length; i++) {
+      const span = document.createElement('span');
+      span.className = 'char';
+      span.textContent = text[i];
+      span.style.opacity = '0';
+      chars.push(span);
+    }
+    chars.forEach(c => parent.insertBefore(c, textNode));
+    parent.removeChild(textNode);
+  };
+
+  function revealLine(line, callback) {
+    line.classList.add('visible');
+    line.style.opacity = '1';
+    const chars = line.querySelectorAll('.char');
+    if (chars.length === 0) { setTimeout(callback, LINE_GAP); return; }
+    let ci = 0;
+    function next() {
+      if (ci < chars.length) {
+        chars[ci].style.opacity = '1';
+        ci++;
+        setTimeout(next, CHAR_SPEED);
+      } else { setTimeout(callback, LINE_GAP); }
+    }
+    next();
+  }
+
+  window.jdRunTerminal = function() {
+    const lines = document.querySelectorAll('#jdTermBody .jd-terminal-line');
+    const progressSection = document.getElementById('jdProgressSection');
+    const footerLine = document.getElementById('jdFooterLine');
+    let lineIdx = 0;
+
+    function run() {
+      if (lineIdx < lines.length) {
+        revealLine(lines[lineIdx], () => { lineIdx++; run(); });
+      } else {
+        setTimeout(() => {
+          progressSection.classList.add('visible');
+          jdStartBars();
+          setTimeout(() => footerLine.classList.add('visible'), 800);
+        }, 800);
+      }
+    }
+    setTimeout(run, 200);
+  };
+
+  window.jdStartBars = function() {
+    const bars = document.querySelectorAll('#jdBars .jd-bar-fill');
+    const pcts = document.querySelectorAll('#jdBars .jd-bar-pct');
+    const targets = [10, 5, 5, 5];
+    bars.forEach((bar, i) => {
+      const target = targets[i];
+      setTimeout(() => {
+        bar.style.width = target + '%';
+        pcts[i].textContent = target + '%';
+        // Animate percentage number
+        let current = 0;
+        const step = target / 40;
+        function countUp() {
+          current += step;
+          if (current >= target) {
+            pcts[i].textContent = target + '%';
+            bar.classList.add('active');
+            return;
+          }
+          pcts[i].textContent = Math.round(current) + '%';
+          requestAnimationFrame(countUp);
+        }
+        countUp();
+      }, i * 200);
+    });
+  };
+})();
 </script>
 
 <!-- ═════════════════════════════════════════
