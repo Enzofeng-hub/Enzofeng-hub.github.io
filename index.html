@@ -1,6 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script type="module" src="/@vite/client"></script>
+
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feng Ke — Product / Solution Engineer</title>
@@ -1277,7 +1280,7 @@ footer {
 ═══════════════════════════════════════════ -->
 <div id="page-jd" class="page-content">
   <div class="jd-page-wrap">
-    <div style="width:100%; max-width:720px; position:relative;">
+    <div style="width:100%; max-width:780px; position:relative;">
 
       <div class="nav-row" style="margin-bottom:24px; opacity:0;" id="jdNavRow">
         <a href="#" class="back-btn" id="backToAboutFromJd"><span class="arrow">←</span> Back to About</a>
@@ -1301,16 +1304,51 @@ footer {
           <span class="jd-terminal-dot g"></span>
           <span class="jd-terminal-title">jd-logistics — building...</span>
         </div>
-        <div class="jd-terminal-body">
-          <div class="jd-building-placeholder">
-            <div class="jd-building-icon">
-              <span class="pulse-dot"></span>
-            </div>
-            <div class="jd-building-text">
-              <span class="t-keyword">const</span> content = <span class="t-keyword">await</span> <span class="t-func">buildExperience</span>();
-            </div>
-            <div class="jd-building-sub">
-              // work content is being generated...
+        <div class="jd-terminal-body" style="position:relative; min-height:clamp(520px,64vh,700px); padding:0; overflow:hidden; background:#030405;">
+          <iframe
+            id="jdEntryAnimationFrame"
+            src="./jd-entry-animation-standalone.html"
+            title="Standalone portfolio reconstruction animation"
+            aria-label="Standalone portfolio reconstruction animation"
+            style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block; pointer-events:none; background:#030405;"
+          ></iframe>
+          <div
+            aria-hidden="true"
+            style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(3,4,5,.2) 0%, rgba(3,4,5,0) 18%, rgba(3,4,5,0) 48%, rgba(3,4,5,.72) 78%, rgba(3,4,5,.96) 100%), radial-gradient(circle at 50% 40%, transparent 0 50%, rgba(3,4,5,.28) 100%);"
+          ></div>
+          <div
+            style="position:absolute; left:18px; right:18px; top:16px; display:flex; align-items:center; justify-content:space-between; gap:14px; font-family:var(--mono); font-size:10px; color:rgba(237,237,237,.48); letter-spacing:.08em; text-transform:uppercase; pointer-events:none;"
+          >
+            <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green);"></span>Build Stream</span>
+            <span style="height:1px; flex:1; background:linear-gradient(90deg, rgba(237,237,237,.18), transparent);"></span>
+            <button
+              id="jdReplayAnimation"
+              type="button"
+              style="pointer-events:auto; display:inline-flex; align-items:center; gap:7px; min-height:28px; padding:0 10px; border:1px solid rgba(237,237,237,.16); border-radius:999px; background:rgba(5,7,6,.56); color:rgba(237,237,237,.66); font:inherit; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;"
+            >
+              <span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green);"></span>
+              Start
+            </button>
+          </div>
+          <div
+            aria-hidden="true"
+            style="position:absolute; left:18px; top:48px; width:188px; display:grid; gap:8px; pointer-events:none; font-family:var(--mono); font-size:10px; color:rgba(237,237,237,.48);"
+          >
+            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">pose graph</em><i style="height:3px; border-radius:999px; background:linear-gradient(90deg, rgba(141,209,167,.82), rgba(141,209,167,.08));"></i></span>
+            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">dense map</em><i style="height:3px; width:76%; border-radius:999px; background:linear-gradient(90deg, rgba(143,184,200,.68), rgba(143,184,200,.06));"></i></span>
+            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">solution</em><i style="height:3px; width:52%; border-radius:999px; background:linear-gradient(90deg, rgba(199,168,109,.6), rgba(199,168,109,.05));"></i></span>
+          </div>
+          <div
+            class="jd-building-placeholder"
+            style="position:absolute; left:18px; right:auto; bottom:14px; min-height:auto; padding:0; display:block; text-align:left; border:0; background:transparent; backdrop-filter:none;"
+          >
+            <div style="padding:0; font-family:var(--mono); text-shadow:0 1px 18px rgba(0,0,0,.6);">
+              <div class="jd-building-text" style="display:flex; align-items:center; gap:8px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; text-align:left; color:rgba(237,237,237,.7);">
+                <span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 13px var(--green); flex:0 0 auto;"></span>
+                <span style="color:#5c6370;">pipeline</span>
+                <span class="t-func">reconstruct</span>
+                <span class="t-cursor"></span>
+              </div>
             </div>
           </div>
         </div>
@@ -2279,5 +2317,20 @@ initCarousel('hikvisionCarousel', 'hikvisionPrev', 'hikvisionNext', 'hikvisionDo
   document.addEventListener('mouseup',   () => ring.classList.remove('clicking'));
 })();
 </script>
+<script>
+(() => {
+  const replay = document.getElementById("jdReplayAnimation");
+  const frame = document.getElementById("jdEntryAnimationFrame");
+  if (!replay || !frame) return;
+
+  const baseSrc = "./jd-entry-animation-standalone.html";
+  replay.addEventListener("click", (event) => {
+    event.preventDefault();
+    frame.src = `${baseSrc}?replay=${Date.now()}`;
+  });
+})();
+</script>
 </body>
 </html>
+
+
