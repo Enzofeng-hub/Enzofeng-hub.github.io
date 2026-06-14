@@ -1,0 +1,1088 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JD Embedded Reconstruction Animation</title>
+    <style>
+:root {
+  color: #f3f0ea;
+  background: #070707;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  --text: rgba(246, 244, 238, 0.92);
+  --muted: rgba(246, 244, 238, 0.55);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  min-width: 320px;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  position: relative;
+  background:
+    radial-gradient(circle at 45% 45%, rgba(88, 108, 105, 0.12), transparent 29rem),
+    radial-gradient(circle at 65% 58%, rgba(82, 68, 106, 0.08), transparent 34rem),
+    linear-gradient(145deg, #020303 0%, #07100f 45%, #050407 100%);
+}
+
+#particle-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  display: block;
+  background: transparent;
+  cursor: none;
+}
+
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        overflow: hidden;
+        background: #030405;
+      }
+
+      #particle-canvas {
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="particle-canvas" aria-label="Embedded reconstruction animation"></canvas>
+    <script>
+const canvas = document.querySelector("#particle-canvas");
+const ctx = canvas.getContext("2d", { alpha: true });
+
+const DPR_LIMIT = 2;
+const TAU = Math.PI * 2;
+const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+let width = 0;
+let height = 0;
+let dpr = 1;
+let startedAt = performance.now();
+let entering = false;
+let enterProgress = 0;
+let smoothedView = null;
+
+const pointer = {
+  x: 0.5,
+  y: 0.5,
+  tx: 0.5,
+  ty: 0.5,
+  sx: 0.5,
+  sy: 0.5,
+  active: false,
+};
+
+const mapPoints = [];
+const densePoints = [];
+const mapEdges = [];
+const mapFaces = [];
+const meshTriangles = [];
+const keyframes = [];
+const cameraPath = [];
+
+const palette = {
+  rack: { r: 38, g: 96, b: 190 },
+  rackDim: { r: 28, g: 66, b: 132 },
+  carton: { r: 196, g: 156, b: 103 },
+  cartonDark: { r: 132, g: 104, b: 72 },
+  conveyor: { r: 214, g: 112, b: 38 },
+  door: { r: 177, g: 90, b: 38 },
+  roller: { r: 145, g: 151, b: 150 },
+  glass: { r: 154, g: 190, b: 184 },
+  map: { r: 202, g: 216, b: 205 },
+  violet: { r: 158, g: 145, b: 188 },
+};
+
+function resizeCanvas() {
+  dpr = Math.min(window.devicePixelRatio || 1, DPR_LIMIT);
+  width = window.innerWidth;
+  height = window.innerHeight;
+  canvas.width = Math.floor(width * dpr);
+  canvas.height = Math.floor(height * dpr);
+  canvas.style.width = `${width}px`;
+  canvas.style.height = `${height}px`;
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  seedWarehouseMap();
+}
+
+function seedWarehouseMap() {
+  mapPoints.length = 0;
+  densePoints.length = 0;
+  mapEdges.length = 0;
+  mapFaces.length = 0;
+  meshTriangles.length = 0;
+  keyframes.length = 0;
+  cameraPath.length = 0;
+
+  addFloorAndWindows();
+  addRack(-1.08, "left");
+  addRack(1.08, "right");
+  addConveyor();
+  addBoxStacks();
+  seedCameraPath();
+  seedDenseCloud();
+  seedMeshTriangles();
+}
+
+function addFloorAndWindows() {
+  addCuboid({ x: 0, y: 0.72, z: -0.2 }, { x: 3.45, y: 0.025, z: 4.25 }, palette.roller, "floor", 420, 0.035, 0.1);
+  addCuboid({ x: 0, y: -0.62, z: -1.36 }, { x: 2.2, y: 0.68, z: 0.035 }, palette.glass, "windows", 130, 0.1, 0.08);
+  addCuboid({ x: 0, y: -0.98, z: -0.16 }, { x: 3.4, y: 0.035, z: 4.15 }, { r: 54, g: 58, b: 58 }, "ceiling", 240, 0.04, 0.05);
+
+  for (let i = -3; i <= 3; i += 1) {
+    addLinePoint({ x: i * 0.34, y: -0.86, z: -1.31 }, { x: i * 0.34, y: -0.2, z: -1.31 }, palette.glass, "window-frame");
+  }
+  for (let i = 0; i < 3; i += 1) {
+    addLinePoint({ x: -1.05, y: -0.72 + i * 0.22, z: -1.31 }, { x: 1.05, y: -0.72 + i * 0.22, z: -1.31 }, palette.glass, "window-frame");
+  }
+
+  addLinePoint({ x: -0.7, y: 0.705, z: 1.78 }, { x: -0.7, y: 0.705, z: -1.84 }, palette.conveyor, "floor-mark");
+  addLinePoint({ x: 0.7, y: 0.705, z: 1.78 }, { x: 0.7, y: 0.705, z: -1.84 }, palette.conveyor, "floor-mark");
+  addLinePoint({ x: -1.46, y: 0.705, z: 0.75 }, { x: 1.46, y: 0.705, z: 0.75 }, palette.conveyor, "floor-mark");
+  addLinePoint({ x: -1.46, y: 0.705, z: -0.72 }, { x: 1.46, y: 0.705, z: -0.72 }, palette.conveyor, "floor-mark");
+
+  for (let i = -3; i <= 3; i += 1) {
+    addCuboid({ x: i * 0.3, y: -0.98, z: -0.16 }, { x: 0.18, y: 0.012, z: 0.025 }, { r: 236, g: 238, b: 224 }, "light", 24, 0.02, 0.16);
+  }
+  for (let z = -1.72; z <= 1.72; z += 0.46) {
+    addLinePoint({ x: -1.58, y: 0.68, z }, { x: -1.58, y: -1.02, z }, { r: 64, g: 78, b: 82 }, "wall-scan");
+    addLinePoint({ x: 1.58, y: 0.68, z }, { x: 1.58, y: -1.02, z }, { r: 64, g: 78, b: 82 }, "wall-scan");
+  }
+
+  addCuboid({ x: 0.94, y: 0.02, z: 1.82 }, { x: 0.42, y: 0.9, z: 0.045 }, palette.door, "orange-door", 120, 0.04, 0.18);
+  addCuboid({ x: 0.33, y: 0.02, z: 1.82 }, { x: 0.38, y: 0.82, z: 0.045 }, palette.door, "orange-door", 100, 0.04, 0.14);
+}
+
+function addRack(x, side) {
+  const color = side === "left" ? palette.rack : palette.rackDim;
+  const zSlots = [-1.78, -1.18, -0.58, 0, 0.58, 1.18, 1.78];
+  const xInner = x * 0.88;
+  const xOuter = x * 1.18;
+
+  for (const z of zSlots) {
+    addLinePoint({ x: xInner, y: 0.68, z }, { x: xInner, y: -0.92, z }, color, "rack");
+    addLinePoint({ x: xOuter, y: 0.68, z }, { x: xOuter, y: -0.92, z }, color, "rack");
+  }
+
+  for (const y of [0.52, 0.06, -0.42, -0.86]) {
+    addCuboid({ x: xInner, y, z: 0 }, { x: 0.035, y: 0.045, z: 3.62 }, color, "rack-beam", 90, 0.02, 0.12);
+    addCuboid({ x: xOuter, y, z: 0 }, { x: 0.035, y: 0.045, z: 3.62 }, color, "rack-beam", 90, 0.02, 0.12);
+    addLinePoint({ x: xInner, y, z: -1.82 }, { x: xOuter, y, z: -1.82 }, color, "rack");
+    addLinePoint({ x: xInner, y, z: 1.82 }, { x: xOuter, y, z: 1.82 }, color, "rack");
+  }
+
+  for (const z of [-1.55, -0.96, -0.44, 0.08, 0.6, 1.18]) {
+    addLinePoint({ x: xInner, y: 0.62, z }, { x: xOuter, y: -0.36, z: z + 0.4 }, color, "rack-brace");
+    addLinePoint({ x: xOuter, y: 0.62, z }, { x: xInner, y: -0.36, z: z + 0.4 }, color, "rack-brace");
+  }
+
+  for (const z of [-1.5, -0.9, -0.32, 0.34, 0.92, 1.45]) {
+    addBoxOnRack(x * 1.02, -0.19, z, side);
+    addBoxOnRack(x * 1.02, -0.67, z + 0.08, side);
+    addBoxOnRack(x * 1.02, -0.93, z + 0.04, side);
+  }
+}
+
+function addBoxOnRack(x, y, z, side) {
+  const w = 0.32 + Math.random() * 0.12;
+  const h = 0.22 + Math.random() * 0.13;
+  const d = 0.28 + Math.random() * 0.18;
+  const color = side === "left" ? palette.carton : palette.cartonDark;
+  addCuboid({ x, y, z }, { x: w, y: h, z: d }, color, "carton", 60, 0.1);
+}
+
+function addConveyor() {
+  addCuboid({ x: -0.33, y: 0.48, z: 0.5 }, { x: 0.66, y: 0.2, z: 1.72 }, palette.conveyor, "conveyor", 190, 0.08, 0.16);
+  addCuboid({ x: -0.33, y: 0.37, z: 0.5 }, { x: 0.58, y: 0.025, z: 1.58 }, palette.roller, "roller-bed", 160, 0.04, 0.08);
+
+  for (let i = 0; i < 18; i += 1) {
+    const z = -0.32 + i * 0.088;
+    addLinePoint({ x: -0.61, y: 0.37, z }, { x: 0.05, y: 0.37, z }, palette.roller, "roller");
+  }
+
+  addCuboid({ x: -0.34, y: 0.18, z: -0.42 }, { x: 0.64, y: 0.08, z: 0.08 }, palette.conveyor, "gantry", 56, 0.12);
+  addLinePoint({ x: -0.66, y: 0.56, z: -0.46 }, { x: -0.66, y: -0.02, z: -0.46 }, palette.conveyor, "gantry");
+  addLinePoint({ x: 0.03, y: 0.56, z: -0.46 }, { x: 0.03, y: -0.02, z: -0.46 }, palette.conveyor, "gantry");
+}
+
+function addBoxStacks() {
+  const stacks = [
+    [0.28, 0.5, 0.4, 0.34, 0.32, 0.42],
+    [0.54, 0.48, -0.12, 0.42, 0.36, 0.34],
+    [-0.16, 0.47, -0.72, 0.28, 0.22, 0.28],
+    [0.78, 0.37, 0.82, 0.42, 0.56, 0.34],
+    [-0.58, 0.54, 0.92, 0.3, 0.22, 0.32],
+    [0.1, 0.48, 1.16, 0.34, 0.24, 0.34],
+    [-0.78, 0.5, -0.28, 0.28, 0.3, 0.28],
+    [1.18, 0.5, -0.95, 0.3, 0.28, 0.34],
+    [-1.18, 0.51, 1.28, 0.34, 0.26, 0.36],
+    [0.0, 0.5, -1.32, 0.44, 0.3, 0.38],
+  ];
+
+  for (const [x, y, z, w, h, d] of stacks) {
+    addCuboid({ x, y, z }, { x: w, y: h, z: d }, palette.carton, "carton", 86, 0.09);
+  }
+}
+
+function seedCameraPath() {
+  const count = 38;
+  for (let i = 0; i < count; i += 1) {
+    const t = i / (count - 1);
+    const openArea = smoothstep(0.18, 0.46, t) - smoothstep(0.55, 0.78, t);
+    const point = {
+      x: Math.sin(t * Math.PI * 2.2) * (0.12 + openArea * 0.46),
+      y: 0.2 + Math.sin(t * TAU * 1.4) * 0.035,
+      z: 1.9 - t * 3.75 + openArea * 0.24,
+      yawHint: -0.18 + Math.sin(t * Math.PI * 2) * 0.35,
+      index: i,
+    };
+    cameraPath.push(point);
+    if (i % 2 === 0 || i === count - 1) keyframes.push(point);
+  }
+}
+
+function addCuboid(center, size, color, kind, density = 64, jitter = 0.06, faceAlpha = 0.08) {
+  const startIndex = mapPoints.length;
+  const faces = [
+    ["x", -0.5],
+    ["x", 0.5],
+    ["y", -0.5],
+    ["y", 0.5],
+    ["z", -0.5],
+    ["z", 0.5],
+  ];
+
+  for (let i = 0; i < density; i += 1) {
+    const [axis, sign] = faces[i % faces.length];
+    const local = {
+      x: Math.random() - 0.5,
+      y: Math.random() - 0.5,
+      z: Math.random() - 0.5,
+    };
+    local[axis] = sign;
+    mapPoints.push({
+      x: center.x + local.x * size.x + (Math.random() - 0.5) * jitter * size.x,
+      y: center.y + local.y * size.y + (Math.random() - 0.5) * jitter * size.y,
+      z: center.z + local.z * size.z + (Math.random() - 0.5) * jitter * size.z,
+      color,
+      kind,
+      confidence: 0.45 + Math.random() * 0.55,
+      birth: Math.random() ** 1.35,
+      size: 0.6 + Math.random() * 1.2,
+      phase: Math.random() * TAU,
+    });
+  }
+
+  const corners = [
+    [-0.5, -0.5, -0.5],
+    [0.5, -0.5, -0.5],
+    [0.5, 0.5, -0.5],
+    [-0.5, 0.5, -0.5],
+    [-0.5, -0.5, 0.5],
+    [0.5, -0.5, 0.5],
+    [0.5, 0.5, 0.5],
+    [-0.5, 0.5, 0.5],
+  ].map(([x, y, z]) => ({
+    x: center.x + x * size.x,
+    y: center.y + y * size.y,
+    z: center.z + z * size.z,
+    color,
+    kind,
+    confidence: 1,
+    birth: 0,
+    size: 0.8,
+    phase: 0,
+  }));
+
+  const cornerIndex = mapPoints.length;
+  mapPoints.push(...corners);
+  const edges = [
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 0],
+    [4, 5],
+    [5, 6],
+    [6, 7],
+    [7, 4],
+    [0, 4],
+    [1, 5],
+    [2, 6],
+    [3, 7],
+  ];
+  for (const [a, b] of edges) mapEdges.push({ a: cornerIndex + a, b: cornerIndex + b, color, kind });
+
+  const faceIndices = [
+    [0, 1, 2, 3],
+    [4, 5, 6, 7],
+    [0, 1, 5, 4],
+    [2, 3, 7, 6],
+    [1, 2, 6, 5],
+    [0, 3, 7, 4],
+  ];
+  for (const face of faceIndices) {
+    mapFaces.push({
+      points: face.map((index) => cornerIndex + index),
+      color,
+      kind,
+      alpha: faceAlpha,
+      birth: Math.random() * 0.28,
+    });
+  }
+
+  return startIndex;
+}
+
+function seedDenseCloud() {
+  const source = mapPoints.filter((point) => !["window-frame", "floor-mark", "rack-brace"].includes(point.kind));
+  const multiplier = width < 720 ? 1.4 : 2.2;
+  const count = Math.min(width < 720 ? 2600 : 4800, Math.floor(source.length * multiplier));
+
+  for (let i = 0; i < count; i += 1) {
+    const base = source[Math.floor(Math.random() * source.length)];
+    const spread = base.kind === "floor" ? 0.018 : base.kind === "rack-beam" ? 0.012 : 0.028;
+    densePoints.push({
+      x: base.x + (Math.random() - 0.5) * spread,
+      y: base.y + (Math.random() - 0.5) * spread,
+      z: base.z + (Math.random() - 0.5) * spread,
+      color: base.color,
+      kind: base.kind,
+      confidence: 0.24 + Math.random() * 0.5,
+      birth: Math.random() ** 1.85,
+      size: 0.28 + Math.random() * 0.72,
+      phase: Math.random() * TAU,
+    });
+  }
+}
+
+function seedMeshTriangles() {
+  const candidates = mapPoints
+    .map((point, index) => ({ ...point, index }))
+    .filter((point) => ["carton", "rack-beam", "conveyor", "roller-bed", "floor", "orange-door"].includes(point.kind));
+  const count = Math.min(width < 720 ? 360 : 680, Math.floor(candidates.length / 3));
+
+  for (let i = 0; i < count; i += 1) {
+    const a = candidates[Math.floor(Math.random() * candidates.length)];
+    const nearby = candidates
+      .filter((point) => point.kind === a.kind && distance3d(point, a) < 0.28)
+      .sort(() => Math.random() - 0.5);
+    if (nearby.length < 3) continue;
+
+    meshTriangles.push({
+      points: [a.index, nearby[1].index, nearby[2].index],
+      color: a.color,
+      kind: a.kind,
+      confidence: 0.35 + Math.random() * 0.65,
+      phase: Math.random() * TAU,
+      birth: Math.random() ** 1.6,
+    });
+  }
+}
+
+function addLinePoint(a, b, color, kind) {
+  const steps = 18;
+  const first = mapPoints.length;
+  for (let i = 0; i <= steps; i += 1) {
+    const t = i / steps;
+    mapPoints.push({
+      x: lerp(a.x, b.x, t),
+      y: lerp(a.y, b.y, t),
+      z: lerp(a.z, b.z, t),
+      color,
+      kind,
+      confidence: 0.8,
+      birth: Math.random() ** 1.2,
+      size: 0.7,
+      phase: Math.random() * TAU,
+    });
+    if (i > 0) mapEdges.push({ a: first + i - 1, b: first + i, color, kind });
+  }
+}
+
+function reconstructionState(time) {
+  const elapsed = time - startedAt;
+  const duration = prefersReducedMotion.matches ? 1 : 23000;
+  const raw = Math.min(1, elapsed / duration);
+  const fastCapture = 1 - Math.pow(1 - raw, 3.2);
+  const slowSolve = smoothstep(0.28, 1, raw);
+
+  return {
+    raw,
+    trackProgress: fastCapture,
+    tracking: Math.max(smoothstep(0.008, 0.18, raw), fastCapture * 0.86),
+    depth: smoothstep(0.08, 0.46, raw),
+    mapping: smoothstep(0.14, 0.62, raw),
+    dense: smoothstep(0.3, 0.84, raw),
+    structure: smoothstep(0.48, 0.92, raw),
+    surfaces: smoothstep(0.68, 0.97, raw),
+    loop: smoothstep(0.62, 0.88, raw),
+    optimize: slowSolve,
+    complete: smoothstep(0.82, 1, raw),
+    scan: (elapsed * 0.00011) % 1,
+    activeKeyframe: Math.min(keyframes.length - 1, Math.floor(easeInOutSine(raw) * keyframes.length)),
+  };
+}
+
+function viewState(time, state) {
+  if (!pointer.active && state.complete < 0.92 && !prefersReducedMotion.matches) {
+    pointer.tx = 0.5 + Math.sin(time * 0.00014) * 0.12;
+    pointer.ty = 0.42 + Math.cos(time * 0.00011) * 0.06;
+  }
+
+  pointer.x += (pointer.tx - pointer.x) * 0.06;
+  pointer.y += (pointer.ty - pointer.y) * 0.06;
+  pointer.sx += (pointer.tx - pointer.sx) * 0.18;
+  pointer.sy += (pointer.ty - pointer.sy) * 0.18;
+
+  const interactive = smoothstep(0.72, 1, state.raw);
+  const trackingPose = samplePath(Math.min(0.98, state.trackProgress * 1.04));
+  const solvedOrbit = time * 0.000045;
+  const guidedYaw = -0.18 + trackingPose.yawHint * 0.5 + solvedOrbit;
+  const guidedPitch = 0.52 + Math.sin(easeInOutSine(state.raw) * Math.PI * 1.8) * 0.045;
+
+  const target = {
+    yaw: guidedYaw + (pointer.x - 0.5) * (0.34 + interactive * 1.05) + enterProgress * 0.55,
+    pitch: guidedPitch + (pointer.y - 0.5) * (0.1 + interactive * 0.22),
+    roll: (pointer.x - 0.5) * 0.05,
+    cameraDistance: 3.48 - state.complete * 0.12 - enterProgress * 0.42,
+    scale: Math.min(width, height) * (width < 720 ? 1.16 : 1.02),
+    focusX: trackingPose.x * (1 - state.complete) * 0.28,
+    focusY: trackingPose.y * (1 - state.complete) * 0.08,
+    focusZ: trackingPose.z * (1 - state.complete) * 0.2,
+  };
+
+  if (!smoothedView) {
+    smoothedView = { ...target };
+  } else {
+    const smoothing = 0.045;
+    for (const key of Object.keys(target)) {
+      smoothedView[key] += (target[key] - smoothedView[key]) * smoothing;
+    }
+  }
+
+  return smoothedView;
+}
+
+function rotate(point, yaw, pitch, roll) {
+  let x = point.x * Math.cos(yaw) - point.z * Math.sin(yaw);
+  let z = point.x * Math.sin(yaw) + point.z * Math.cos(yaw);
+  let y = point.y * Math.cos(pitch) - z * Math.sin(pitch);
+  z = point.y * Math.sin(pitch) + z * Math.cos(pitch);
+  const rx = x * Math.cos(roll) - y * Math.sin(roll);
+  const ry = x * Math.sin(roll) + y * Math.cos(roll);
+  return { x: rx, y: ry, z };
+}
+
+function project(point, view) {
+  const z = view.cameraDistance + point.z;
+  const perspective = view.scale / Math.max(0.24, z);
+  return {
+    x: width / 2 + point.x * perspective,
+    y: height / 2 + point.y * perspective,
+    z,
+    perspective,
+  };
+}
+
+function transform(point, view) {
+  const focused = {
+    x: point.x - view.focusX,
+    y: point.y - view.focusY,
+    z: point.z - view.focusZ,
+  };
+  return project(rotate(focused, view.yaw, view.pitch, view.roll), view);
+}
+
+function drawBackground(state) {
+  ctx.globalCompositeOperation = "source-over";
+  ctx.fillStyle = "rgb(3, 5, 6)";
+  ctx.fillRect(0, 0, width, height);
+
+  const glow = ctx.createRadialGradient(width * 0.5, height * 0.52, 0, width / 2, height / 2, Math.max(width, height) * 0.78);
+  glow.addColorStop(0, `rgba(82, 116, 132, ${0.12 + state.complete * 0.04})`);
+  glow.addColorStop(0.28, "rgba(28, 38, 42, 0.18)");
+  glow.addColorStop(0.55, "rgba(44, 29, 18, 0.08)");
+  glow.addColorStop(1, "rgba(0, 0, 0, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+}
+
+function drawGrid(view, state) {
+  ctx.globalCompositeOperation = "lighter";
+  const alpha = 0.025 + state.depth * 0.04;
+  for (let i = -7; i <= 7; i += 1) {
+    const a = i === 0 ? alpha * 2.2 : alpha;
+    drawLine3d({ x: i * 0.18, y: 0.72, z: -1.38 }, { x: i * 0.18, y: 0.72, z: 1.42 }, view, `rgba(115, 146, 146, ${a})`);
+    drawLine3d({ x: -1.32, y: 0.72, z: i * 0.18 }, { x: 1.32, y: 0.72, z: i * 0.18 }, view, `rgba(115, 146, 146, ${a})`);
+  }
+}
+
+function drawDepthSweep(view, state) {
+  const z = -1.9 + state.scan * 3.8;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineWidth = 1;
+
+  const rows = 9;
+  for (let row = 0; row < rows; row += 1) {
+    const y = -0.92 + (row / (rows - 1)) * 1.62;
+    const a = transform({ x: -1.55, y, z }, view);
+    const b = transform({ x: 1.55, y, z }, view);
+    const alpha = state.depth * (0.035 + (row % 3 === 0 ? 0.055 : 0));
+    ctx.strokeStyle = `rgba(137, 206, 204, ${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+
+  const cols = 7;
+  for (let col = 0; col < cols; col += 1) {
+    const x = -1.55 + (col / (cols - 1)) * 3.1;
+    const a = transform({ x, y: -0.92, z }, view);
+    const b = transform({ x, y: 0.7, z }, view);
+    ctx.strokeStyle = `rgba(214, 112, 38, ${state.depth * 0.025})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+}
+
+function drawTrajectory(view, state, time) {
+  ctx.globalCompositeOperation = "lighter";
+  const pathSamples = 260;
+  const visibleSamples = Math.max(2, Math.floor(pathSamples * state.trackProgress));
+
+  for (let index = 1; index < visibleSamples; index += 2) {
+    const t0 = (index - 1) / (pathSamples - 1);
+    const t1 = index / (pathSamples - 1);
+    const a = transform(samplePath(t0), view);
+    const b = transform(samplePath(t1), view);
+    const age = index / pathSamples;
+    const pulse = 0.55 + Math.sin(time * 0.002 + index * 0.07) * 0.25;
+    ctx.strokeStyle = `rgba(208, 180, 127, ${0.012 * state.tracking * (0.4 + age)})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+
+    if (index % 8 === 0) {
+      ctx.fillStyle = `rgba(226, 232, 223, ${0.035 * state.tracking * pulse})`;
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, 1.1, 0, TAU);
+      ctx.fill();
+    }
+  }
+
+  if (state.loop > 0.05) {
+    const first = transform(cameraPath[1], view);
+    const last = transform(cameraPath[cameraPath.length - 2], view);
+    ctx.strokeStyle = `rgba(${palette.violet.r}, ${palette.violet.g}, ${palette.violet.b}, ${state.loop * 0.18})`;
+    ctx.beginPath();
+    ctx.moveTo(first.x, first.y);
+    ctx.bezierCurveTo(width * 0.38, height * 0.2, width * 0.62, height * 0.24, last.x, last.y);
+    ctx.stroke();
+
+    drawLoopConstraints(view, state, time);
+  }
+}
+
+function drawLoopConstraints(view, state, time) {
+  const pairs = [
+    [2, 22],
+    [4, 27],
+    [7, 31],
+    [10, 35],
+  ];
+
+  ctx.lineWidth = 1;
+  for (let i = 0; i < pairs.length; i += 1) {
+    const [aIndex, bIndex] = pairs[i];
+    const a = transform(cameraPath[Math.min(aIndex, cameraPath.length - 1)], view);
+    const b = transform(cameraPath[Math.min(bIndex, cameraPath.length - 1)], view);
+    const pulse = 0.45 + Math.sin(time * 0.004 + i) * 0.35;
+    ctx.strokeStyle = `rgba(${palette.violet.r}, ${palette.violet.g}, ${palette.violet.b}, ${state.loop * (0.05 + pulse * 0.08)})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.bezierCurveTo((a.x + b.x) / 2, Math.min(a.y, b.y) - 90 - i * 18, (a.x + b.x) / 2, Math.max(a.y, b.y) + 50, b.x, b.y);
+    ctx.stroke();
+
+    ctx.fillStyle = `rgba(${palette.violet.r}, ${palette.violet.g}, ${palette.violet.b}, ${state.loop * 0.16})`;
+    ctx.beginPath();
+    ctx.arc(a.x, a.y, 2 + pulse * 2, 0, TAU);
+    ctx.arc(b.x, b.y, 2 + pulse * 2, 0, TAU);
+    ctx.fill();
+  }
+}
+
+function drawKeyframes(time, view, state) {
+  ctx.globalCompositeOperation = "lighter";
+  const pathProgress = state.trackProgress * (keyframes.length - 1);
+
+  for (let i = 0; i < keyframes.length; i += 1) {
+    const kf = keyframes[i];
+    const reveal = Math.max(0, Math.min(1, pathProgress - i + 1));
+    if (reveal <= 0) continue;
+    const active = Math.max(0, 1 - Math.abs(pathProgress - i));
+    const pose = {
+      x: kf.x + Math.sin(time * 0.0005 + i) * 0.018 * (1 - state.complete),
+      y: kf.y,
+      z: kf.z,
+    };
+    const basis = lookAtBasis(pose, { x: 0, y: 0.18, z: kf.z - 0.42 });
+    const center = add(pose, multiply(basis.forward, 0.2));
+    const halfW = 0.09;
+    const halfH = 0.06;
+    const corners = [
+      add(add(center, multiply(basis.right, -halfW)), multiply(basis.up, -halfH)),
+      add(add(center, multiply(basis.right, halfW)), multiply(basis.up, -halfH)),
+      add(add(center, multiply(basis.right, halfW)), multiply(basis.up, halfH)),
+      add(add(center, multiply(basis.right, -halfW)), multiply(basis.up, halfH)),
+    ];
+
+    const pc = transform(pose, view);
+    const projected = corners.map((corner) => transform(corner, view));
+    const alpha = (0.02 + active * 0.12 + state.complete * 0.025) * reveal;
+    ctx.fillStyle = `rgba(145, 184, 178, ${alpha * 1.2})`;
+    ctx.beginPath();
+    ctx.arc(pc.x, pc.y, 1.1 + active * 1.3, 0, TAU);
+    ctx.fill();
+
+    ctx.strokeStyle = `rgba(145, 184, 178, ${alpha})`;
+    ctx.lineWidth = active ? 1.1 : 0.65;
+    projected.forEach((corner) => {
+      ctx.beginPath();
+      ctx.moveTo(pc.x, pc.y);
+      ctx.lineTo(corner.x, corner.y);
+      ctx.stroke();
+    });
+    ctx.beginPath();
+    ctx.moveTo(projected[0].x, projected[0].y);
+    projected.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
+    ctx.closePath();
+    ctx.stroke();
+
+    if (active > 0.18 && state.complete < 0.85) {
+      drawFeatureRays(pc, view, state, i);
+    }
+  }
+
+  drawLiveCamera(time, view, state);
+}
+
+function drawLiveCamera(time, view, state) {
+  const pose = samplePath(Math.min(0.98, state.trackProgress * 1.04));
+  const basis = lookAtBasis(pose, { x: pose.x * 0.35, y: 0.12, z: pose.z - 0.5 });
+  const center = add(pose, multiply(basis.forward, 0.26));
+  const halfW = 0.13;
+  const halfH = 0.085;
+  const corners = [
+    add(add(center, multiply(basis.right, -halfW)), multiply(basis.up, -halfH)),
+    add(add(center, multiply(basis.right, halfW)), multiply(basis.up, -halfH)),
+    add(add(center, multiply(basis.right, halfW)), multiply(basis.up, halfH)),
+    add(add(center, multiply(basis.right, -halfW)), multiply(basis.up, halfH)),
+  ];
+  const pc = transform(pose, view);
+  const projected = corners.map((corner) => transform(corner, view));
+  const pulse = 0.55 + Math.sin(time * 0.006) * 0.25;
+
+  ctx.strokeStyle = `rgba(208, 180, 127, ${0.18 + pulse * 0.14})`;
+  ctx.lineWidth = 1.8;
+  projected.forEach((corner) => {
+    ctx.beginPath();
+    ctx.moveTo(pc.x, pc.y);
+    ctx.lineTo(corner.x, corner.y);
+    ctx.stroke();
+  });
+  ctx.beginPath();
+  ctx.moveTo(projected[0].x, projected[0].y);
+  projected.slice(1).forEach((p) => ctx.lineTo(p.x, p.y));
+  ctx.closePath();
+  ctx.stroke();
+}
+
+function drawFeatureRays(cameraProjection, view, state, cameraIndex) {
+  const stride = 41;
+  ctx.strokeStyle = `rgba(208, 180, 127, ${0.08 * state.mapping})`;
+  for (let i = cameraIndex * 13; i < mapPoints.length; i += stride) {
+    const p = mapPoints[i];
+    if (p.birth > state.mapping || p.kind === "floor") continue;
+    const projected = transform(p, view);
+    ctx.beginPath();
+    ctx.moveTo(cameraProjection.x, cameraProjection.y);
+    ctx.lineTo(projected.x, projected.y);
+    ctx.stroke();
+  }
+}
+
+function drawMapPoints(time, view, state) {
+  const visible = [];
+  const scanZ = -1.9 + state.scan * 3.8;
+
+  for (let i = 0; i < mapPoints.length; i += 1) {
+    const point = mapPoints[i];
+    const born = point.birth <= state.mapping;
+    const scanned = Math.max(0, 1 - Math.abs(point.z - scanZ) * 2.2);
+    if (!born && scanned < 0.16) continue;
+
+    const instability = (1 - state.complete) * 0.045;
+    const model = {
+      x: point.x + Math.sin(time * 0.001 + point.phase) * instability,
+      y: point.y + Math.cos(time * 0.0011 + point.phase) * instability * 0.5,
+      z: point.z + Math.sin(time * 0.0009 + point.phase) * instability,
+    };
+    const projected = transform(model, view);
+    const alpha = Math.min(0.76, (0.028 + point.confidence * 0.18 + scanned * 0.16) * Math.max(state.mapping, scanned * state.depth));
+    const size = Math.max(0.38, point.size * projected.perspective * 0.009 + state.complete * 0.2);
+    visible.push({ ...projected, alpha, size, color: point.color, kind: point.kind, index: i });
+  }
+
+  for (const point of visible) {
+    const c = point.color;
+    ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${point.alpha})`;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, point.size, 0, TAU);
+    ctx.fill();
+  }
+}
+
+function drawDenseCloud(time, view, state) {
+  if (state.dense <= 0.02) return;
+
+  const visible = [];
+  const scanZ = -1.9 + state.scan * 3.8;
+  const pathBias = samplePath(Math.min(0.98, state.raw * 1.05));
+
+  for (let i = 0; i < densePoints.length; i += 1) {
+    const point = densePoints[i];
+    const localPathReveal = Math.max(0, 1 - Math.abs(point.z - pathBias.z) * 0.72);
+    const scanned = Math.max(0, 1 - Math.abs(point.z - scanZ) * 2.8);
+    const born = point.birth <= state.dense * (0.72 + localPathReveal * 0.36);
+
+    if (!born && scanned < 0.18) continue;
+
+    const settle = smoothstep(0.42, 1, state.dense);
+    const jitter = (1 - settle) * 0.028;
+    const model = {
+      x: point.x + Math.sin(time * 0.0014 + point.phase) * jitter,
+      y: point.y + Math.cos(time * 0.0011 + point.phase) * jitter * 0.5,
+      z: point.z + Math.sin(time * 0.001 + point.phase) * jitter,
+    };
+    const projected = transform(model, view);
+    const c = point.color;
+    const alpha =
+      Math.min(0.38, (0.018 + point.confidence * 0.14 + scanned * 0.08 + localPathReveal * 0.035) * state.dense) *
+      (1 - state.surfaces * 0.18);
+
+    visible.push({
+      ...projected,
+      alpha,
+      color: c,
+      size: Math.max(0.25, point.size * projected.perspective * 0.006 + state.complete * 0.08),
+    });
+  }
+
+  ctx.globalCompositeOperation = "lighter";
+
+  for (const point of visible) {
+    const c = point.color;
+    ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${point.alpha})`;
+    ctx.beginPath();
+    ctx.arc(point.x, point.y, point.size, 0, TAU);
+    ctx.fill();
+  }
+}
+
+function drawCompletedGeometry(view, state) {
+  if (state.structure < 0.02) return;
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineWidth = 1;
+
+  const edgeReveal = Math.max(state.structure * 0.85, state.complete);
+  for (let i = 0; i < mapEdges.length; i += 1) {
+    if ((i % 97) / 97 > edgeReveal) continue;
+    const edge = mapEdges[i];
+    const a = transform(mapPoints[edge.a], view);
+    const b = transform(mapPoints[edge.b], view);
+    const distance = Math.hypot(a.x - b.x, a.y - b.y);
+    if (distance > 95) continue;
+    const c = edge.color;
+    const alpha = (0.025 + state.dense * 0.035 + state.complete * 0.11) * state.structure * (1 - distance / 120);
+    ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+}
+
+function drawCompletedSurfaces(view, state) {
+  if (state.surfaces < 0.03) return;
+
+  const faces = mapFaces
+    .map((face) => {
+      const projected = face.points.map((index) => transform(mapPoints[index], view));
+      const depth = projected.reduce((sum, point) => sum + point.z, 0) / projected.length;
+      return { ...face, projected, depth };
+    })
+    .sort((a, b) => b.depth - a.depth);
+
+  ctx.globalCompositeOperation = "source-over";
+
+  for (let i = 0; i < faces.length; i += 1) {
+    const face = faces[i];
+    const reveal = Math.max(0, Math.min(1, state.surfaces * 1.15 - face.birth));
+    if (reveal <= 0) continue;
+
+    const c = face.color;
+    const alpha = face.alpha * reveal * (0.32 + state.complete * 0.78);
+    ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(face.projected[0].x, face.projected[0].y);
+    for (let p = 1; p < face.projected.length; p += 1) {
+      ctx.lineTo(face.projected[p].x, face.projected[p].y);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  ctx.globalCompositeOperation = "lighter";
+}
+
+function drawAiMesh(view, state, time) {
+  if (state.optimize < 0.04) return;
+
+  const triangles = meshTriangles
+    .filter((triangle) => triangle.birth <= state.optimize)
+    .map((triangle) => {
+      const projected = triangle.points.map((index) => transform(mapPoints[index], view));
+      return { ...triangle, projected };
+    });
+
+  ctx.globalCompositeOperation = "lighter";
+
+  for (const triangle of triangles) {
+    const c = triangle.color;
+    const confidencePulse = 0.55 + Math.sin(time * 0.0022 + triangle.phase) * 0.25;
+    const alpha = state.optimize * triangle.confidence * confidencePulse * 0.035;
+    ctx.fillStyle = `rgba(${c.r + 12}, ${c.g + 18}, ${c.b + 8}, ${alpha})`;
+    ctx.strokeStyle = `rgba(${palette.map.r}, ${palette.map.g}, ${palette.map.b}, ${alpha * 1.4})`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(triangle.projected[0].x, triangle.projected[0].y);
+    ctx.lineTo(triangle.projected[1].x, triangle.projected[1].y);
+    ctx.lineTo(triangle.projected[2].x, triangle.projected[2].y);
+    ctx.closePath();
+    ctx.fill();
+    if (triangle.confidence > 0.62) ctx.stroke();
+  }
+}
+
+function drawCursor(time, state) {
+  const x = pointer.sx * width;
+  const y = pointer.sy * height;
+  const active = pointer.active ? 1 : 0.65;
+  const pulse = 0.5 + Math.sin(time * 0.005) * 0.5;
+  const radius = 5.5 + pulse * 0.8;
+
+  ctx.globalCompositeOperation = "lighter";
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = `rgba(226, 232, 223, ${0.42 * active})`;
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, TAU);
+  ctx.stroke();
+
+  ctx.strokeStyle = `rgba(145, 184, 178, ${0.34 * active})`;
+  ctx.beginPath();
+  ctx.moveTo(x - 12, y);
+  ctx.lineTo(x - 8, y);
+  ctx.moveTo(x + 8, y);
+  ctx.lineTo(x + 12, y);
+  ctx.moveTo(x, y - 12);
+  ctx.lineTo(x, y - 8);
+  ctx.moveTo(x, y + 8);
+  ctx.lineTo(x, y + 12);
+  ctx.stroke();
+
+  ctx.fillStyle = `rgba(208, 180, 127, ${0.58 * active})`;
+  ctx.beginPath();
+  ctx.arc(x, y, 1.6, 0, TAU);
+  ctx.fill();
+}
+
+function drawEntryExpansion(view) {
+  if (!entering) return;
+  ctx.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 110; i += 1) {
+    const angle = i * 2.399;
+    const radius = enterProgress * (0.18 + (i % 15) * 0.032);
+    const p = transform({ x: Math.cos(angle) * radius, y: Math.sin(i) * radius * 0.42, z: Math.sin(angle) * radius }, view);
+    ctx.fillStyle = `rgba(214, 112, 38, ${(1 - enterProgress) * 0.24})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 1 + enterProgress * 3, 0, TAU);
+    ctx.fill();
+  }
+}
+
+
+function render(time = 0) {
+  const state = reconstructionState(time);
+  if (entering) enterProgress = Math.min(1, enterProgress + 0.017);
+  const view = viewState(time, state);
+
+  drawBackground(state);
+  drawGrid(view, state);
+  drawDepthSweep(view, state);
+  drawTrajectory(view, state, time);
+  drawKeyframes(time, view, state);
+  drawMapPoints(time, view, state);
+  drawDenseCloud(time, view, state);
+  drawAiMesh(view, state, time);
+  drawCompletedSurfaces(view, state);
+  drawCompletedGeometry(view, state);
+  drawEntryExpansion(view);
+  drawCursor(time, state);
+
+  requestAnimationFrame(render);
+}
+
+function drawLine3d(a, b, view, color, lineWidth = 1) {
+  const pa = transform(a, view);
+  const pb = transform(b, view);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.moveTo(pa.x, pa.y);
+  ctx.lineTo(pb.x, pb.y);
+  ctx.stroke();
+}
+
+function handlePointerMove(event) {
+  pointer.active = true;
+  pointer.tx = event.clientX / width;
+  pointer.ty = event.clientY / height;
+}
+
+function enterSpace(event) {
+  handlePointerMove(event);
+  entering = false;
+}
+
+function smoothstep(min, max, value) {
+  const x = Math.min(1, Math.max(0, (value - min) / (max - min)));
+  return x * x * (3 - 2 * x);
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+
+function samplePath(t) {
+  if (cameraPath.length === 0) {
+    return { x: 0, y: 0.2, z: 0, yawHint: 0 };
+  }
+
+  const scaled = Math.min(cameraPath.length - 1.001, Math.max(0, t * (cameraPath.length - 1)));
+  const index = Math.floor(scaled);
+  const local = smootherstep(scaled - index);
+  const p0 = cameraPath[Math.max(0, index - 1)];
+  const p1 = cameraPath[index];
+  const p2 = cameraPath[Math.min(cameraPath.length - 1, index + 1)];
+  const p3 = cameraPath[Math.min(cameraPath.length - 1, index + 2)];
+
+  return {
+    x: catmullRom(p0.x, p1.x, p2.x, p3.x, local),
+    y: catmullRom(p0.y, p1.y, p2.y, p3.y, local),
+    z: catmullRom(p0.z, p1.z, p2.z, p3.z, local),
+    yawHint: catmullRom(p0.yawHint, p1.yawHint, p2.yawHint, p3.yawHint, local),
+  };
+}
+
+function samplePathVelocity(t) {
+  const a = samplePath(Math.max(0, t - 0.015));
+  const b = samplePath(Math.min(1, t + 0.015));
+  return Math.atan2(b.x - a.x, a.z - b.z);
+}
+
+function catmullRom(p0, p1, p2, p3, t) {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
+}
+
+function smootherstep(value) {
+  return value * value * value * (value * (value * 6 - 15) + 10);
+}
+
+function easeInOutSine(value) {
+  return -(Math.cos(Math.PI * value) - 1) / 2;
+}
+
+function distance3d(a, b) {
+  return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
+}
+
+function add(a, b) {
+  return { x: a.x + b.x, y: a.y + b.y, z: a.z + b.z };
+}
+
+function multiply(v, n) {
+  return { x: v.x * n, y: v.y * n, z: v.z * n };
+}
+
+function normalize(v) {
+  const length = Math.hypot(v.x, v.y, v.z) || 1;
+  return { x: v.x / length, y: v.y / length, z: v.z / length };
+}
+
+function cross(a, b) {
+  return {
+    x: a.y * b.z - a.z * b.y,
+    y: a.z * b.x - a.x * b.z,
+    z: a.x * b.y - a.y * b.x,
+  };
+}
+
+function lookAtBasis(camera, target) {
+  const forward = normalize({
+    x: target.x - camera.x,
+    y: target.y - camera.y,
+    z: target.z - camera.z,
+  });
+  const right = normalize(cross({ x: 0, y: -1, z: 0 }, forward));
+  const up = cross(forward, right);
+  return { forward, right, up };
+}
+
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("pointermove", handlePointerMove, { passive: true });
+resizeCanvas();
+render();
+
+    </script>
+  </body>
+</html>
