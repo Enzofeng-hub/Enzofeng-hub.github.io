@@ -1,16 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script type="module" src="/@vite/client"></script>
-
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Feng Ke — Product / Solution Engineer</title>
   <script>
-    // Mobile redirect
-    if (/Mobi|Android/i.test(navigator.userAgent) && window.innerWidth < 900) {
-      window.location.replace('./index-mobile.html');
+    // Desktop redirect
+    if (!/Mobi|Android/i.test(navigator.userAgent)) {
+      window.location.replace('./index.html');
     }
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -244,10 +241,7 @@ a { color: inherit; text-decoration: none; }
   width: 24px; height: 24px;
   border-color: #fff;
 }
-@media (max-width: 900px) {
-  .cursor-dot, .cursor-ring { display: none; }
-  *, *::before, *::after { cursor: auto !important; }
-}
+/* Custom cursor — hidden on mobile, handled in unified mobile block */
 
 /* ═══════════════════════════════════════════
    HERO
@@ -301,29 +295,15 @@ a { color: inherit; text-decoration: none; }
   filter: blur(0.5px);
 }
 
-/* Hero profile photo — blended background on right half */
-.hero-photo {
+/* Hero ambient canvas — full screen geometric particles */
+#hero-ambient-canvas {
   position: absolute;
-  top: 0; right: 0;
-  width: 55%; height: 100%;
-  object-fit: cover;
-  object-position: center 20%;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
   z-index: 0;
-  opacity: 0;
-  animation: fadeUp 1s 0s forwards;
-  opacity: 0.15;
-  filter: grayscale(0.55) contrast(1.05) brightness(0.85);
-  mix-blend-mode: lighten;
   pointer-events: none;
-  mask-image:
-    radial-gradient(ellipse 80% 70% at 75% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 85%),
-    linear-gradient(to left, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 45%, transparent 75%);
-  -webkit-mask-image:
-    radial-gradient(ellipse 80% 70% at 75% 50%, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 50%, transparent 85%),
-    linear-gradient(to left, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 45%, transparent 75%);
-}
-.hero-photo:hover {
-  filter: none;
+  opacity: 0;
+  animation: fadeUp 1.2s 0.3s forwards;
 }
 
 /* Hero contact whisper — bottom-left */
@@ -462,15 +442,7 @@ a { color: inherit; text-decoration: none; }
   animation: scrollLine 2s 1.5s infinite;
 }
 
-@media (max-width: 900px) {
-  .mosaic-zone { width: 100%; }
-  .mosaic-grid { grid-template-columns: repeat(auto-fill, 36px); padding: 0 20px; gap: 2px; }
-  .mosaic-cell { width: 36px; height: 36px; }
-  .hero-contact-whisper { left: 24px; bottom: 40px; max-width: 260px; }
-  .hero-contact-whisper .hcw-headline { font-size: 15px; }
-  .hero-photo { width: 100%; mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 80%), linear-gradient(to left, rgba(0,0,0,0.5) 0%, transparent 70%); -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.2) 50%, transparent 80%), linear-gradient(to left, rgba(0,0,0,0.5) 0%, transparent 70%); }
-  .scroll-indicator { right: 24px; }
-}
+/* Mosaic — mobile handled in unified mobile block */
 
 /* ═══════════════════════════════════════════
    SECTION COMMON
@@ -626,8 +598,14 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--mono);
 }
 .jd-terminal-body {
-  padding: 16px 24px; font-family: var(--mono); font-size: 12px;
-  line-height: 1.8; color: var(--muted2);
+  padding: 12px 20px; font-family: var(--mono); font-size: 11px;
+  line-height: 1.15; color: var(--muted2);
+}
+.jd-terminal-line {
+  opacity: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
 }
 .jd-terminal-body .t-comment { color: #5c6370; }
 .jd-terminal-body .t-keyword { color: #c678dd; }
@@ -639,17 +617,15 @@ a { color: inherit; text-decoration: none; }
 }
 @keyframes jdBlink { 50% { opacity: 0; } }
 .jd-terminal-line { opacity: 0; }
-.jd-terminal-line.visible { opacity: 1; transition: opacity 0.15s; }
-.jd-terminal-line .char { opacity: 0; }
 .jd-building-placeholder {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; padding: 40px 24px; text-align: center;
-  min-height: 120px;
+  justify-content: center; padding: 40px 20px; text-align: center;
+  min-height: 150px; width: 100%; box-sizing: border-box;
 }
 .jd-building-icon {
-  width: 32px; height: 32px; border-radius: 50%;
+  width: 36px; height: 36px; border-radius: 50%;
   border: 2px solid var(--green); display: flex; align-items: center;
-  justify-content: center; margin-bottom: 16px;
+  justify-content: center; margin-bottom: 18px; flex-shrink: 0;
 }
 .jd-building-icon .pulse-dot {
   width: 8px; height: 8px; border-radius: 50%; background: var(--green);
@@ -658,11 +634,13 @@ a { color: inherit; text-decoration: none; }
 @keyframes jdPulse { 0%,100% { opacity:.4; transform:scale(1); } 50% { opacity:1; transform:scale(1.3); } }
 .jd-building-text {
   font-family: var(--mono); font-size: 13px; color: var(--muted);
-  margin-bottom: 8px;
+  margin-bottom: 10px; line-height: 1.5; word-wrap: break-word;
 }
 .jd-building-sub {
   font-family: var(--mono); font-size: 11px; color: #5c6370;
 }
+.jd-terminal-line.visible { opacity: 1; transition: opacity 0.15s; }
+.jd-terminal-line .char { opacity: 0; }
 
 .jd-progress-section {
   margin-top: 0; padding: 14px 24px; background: var(--bg3);
@@ -730,15 +708,7 @@ a { color: inherit; text-decoration: none; }
 .jd-footer-line .cs-dot:nth-child(2) { animation-delay: 0.2s; }
 .jd-footer-line .cs-dot:nth-child(3) { animation-delay: 0.4s; }
 
-@media (max-width: 640px) {
-  .jd-page-wrap { padding: 40px 20px; }
-  .jd-company { font-size: 34px; }
-  .jd-meta-row { gap: 8px; }
-  .jd-terminal-body { font-size: 10px; padding: 14px 16px; }
-  .jd-progress-section { padding: 14px 16px; }
-  .jd-bar-label { width: 80px; font-size: 10px; }
-  .jd-bar-pct { width: 36px; font-size: 10px; }
-}
+/* JD mobile handled in unified mobile block */
 
 /* ═══════════════════════════════════════════
    EXPERIENCE
@@ -1011,18 +981,7 @@ a { color: inherit; text-decoration: none; }
   width: 24px;
   border-radius: 4px;
 }
-/* Mobile carousel */
-@media (max-width: 900px) {
-  .carousel-slide { width: 85vw; }
-  .carousel-track { height: 300px; }
-  .carousel-slide.pos-left { transform: translateX(-65%) rotateY(8deg) scale(0.82); }
-  .carousel-slide.pos-right { transform: translateX(65%) rotateY(-8deg) scale(0.82); }
-  .carousel-arrow.prev { left: -50px; }
-  .carousel-arrow.next { right: -50px; }
-  .carousel-arrow.prev { border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-right: 14px solid var(--muted2); }
-  .carousel-arrow.next { border-top: 10px solid transparent; border-bottom: 10px solid transparent; border-left: 14px solid var(--muted2); }
-  .carousel-slide .proj-card { height: auto; min-height: 240px; }
-}
+/* Carousel mobile handled in unified mobile block */
 
 /* ═══════════════════════════════════════════
    COMPACT SECTION (for Dahua / Hikvision pages)
@@ -1057,14 +1016,7 @@ a { color: inherit; text-decoration: none; }
 .section-compact .carousel-dots {
   margin-top: 20px;
 }
-@media (max-width: 900px) {
-  .section-compact {
-    padding: 40px 24px 0;
-  }
-  .section-compact .carousel-track {
-    height: 280px;
-  }
-}
+/* Compact section mobile handled in unified mobile block */
 
 /* ═══════════════════════════════════════════
    FOOTER
@@ -1105,23 +1057,193 @@ footer {
 }
 
 /* ═══════════════════════════════════════════
-   MOBILE
+   MOBILE — Tablet & Phone (≤900px)
 ═══════════════════════════════════════════ */
 @media (max-width: 900px) {
-  #page-hero, .section { padding-left: 24px; padding-right: 24px; }
-  .hero-h1 { font-size: 44px; }
-  .about-grid { grid-template-columns: 1fr; gap: 48px; }
-  .duty-grid { grid-template-columns: 1fr; gap: 2px; }
-  .duty-grid .duty-cell { flex-direction: row; }
-  .duty-grid .duty-num { font-size: 42px; min-width: 54px; }
+  *, *::before, *::after { cursor: auto !important; }
+  .cursor-dot, .cursor-ring { display: none; }
+
+  /* Hero */
+  #page-hero { padding: 0 24px; }
+  .hero-h1 { font-size: clamp(36px, 10vw, 52px); }
+  .hero-eyebrow { font-size: 12px; margin-bottom: 20px; }
+  .hero-tags { gap: 8px; margin-top: 20px; }
+  .hero-tag { padding: 6px 12px; font-size: 12px; }
+  .hero-desc { font-size: 15px; max-width: 100%; margin-top: 20px; min-height: 48px; }
+  .hero-cta { margin-top: 36px; }
+  .btn-primary { padding: 13px 28px; font-size: 14px; }
+  .scroll-indicator { right: 24px; bottom: 24px; }
+  .hero-contact-whisper { left: 20px; bottom: 24px; max-width: 220px; }
+  .hero-contact-whisper .hcw-headline { font-size: 14px; margin-bottom: 10px; }
+  .hero-contact-whisper .hcw-link { font-size: 13px; }
+  .hero-contact-whisper .hcw-divider { margin: 8px 0; }
+
+  /* Mosaic */
+  .mosaic-zone { width: 100%; }
+  .mosaic-grid { grid-template-columns: repeat(auto-fill, 36px); padding: 0 16px; gap: 2px; }
+  .mosaic-cell { width: 36px; height: 36px; }
+  /* Ambient canvas */
+  #hero-ambient-canvas { opacity: 0; animation: fadeUp 1.2s 0.3s forwards; }
+
+  /* Section common */
+  .section { padding: 60px 20px; }
+  #page-about .section { padding: 40px 20px; padding-top: 80px; }
+  .section-label { margin-bottom: 24px; }
+  .back-btn { padding: 8px 16px; font-size: 12px; margin-bottom: 20px; }
+
+  /* About */
+  .about-grid { grid-template-columns: 1fr; gap: 36px; }
+  .about-h2 { font-size: 26px; margin-bottom: 18px; }
+  .about-p { font-size: 14px; line-height: 1.8; margin-bottom: 12px; }
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 20px; }
+  .stat-cell { padding: 18px 16px; }
+  .stat-num { font-size: 26px; }
+  .stat-desc { font-size: 11px; }
+  .info-list li { padding: 12px 0; font-size: 12px; flex-wrap: wrap; gap: 4px; }
+  .info-list .il-val { text-align: right; }
+  .chip { padding: 4px 10px; font-size: 11px; }
+
+  /* JD page */
+  .jd-page-wrap { padding: 30px 20px; align-items: flex-start; }
+  .jd-company { font-size: clamp(28px, 7vw, 38px); }
+  .jd-meta-row { gap: 8px; margin-top: 10px; }
+  .jd-meta-role { font-size: 12px; }
+  .jd-terminal-body { font-size: 9px; padding: 10px 14px; overflow-x: auto; white-space: pre; word-break: keep-all; line-height: 1.2; }
+  .jd-terminal-body .jd-building-placeholder { padding: 36px 16px; min-height: 130px; }
+  .jd-terminal-body .jd-building-text { font-size: 12px; }
+  .jd-terminal-body .jd-building-sub { font-size: 10px; }
+  .jd-progress-section { padding: 12px 16px; }
+  .jd-bar-label { width: 80px; font-size: 9px; }
+  .jd-bar-pct { width: 34px; font-size: 10px; }
+  .jd-footer-line { font-size: 11px; margin-top: 18px; }
+
+  /* Nav row */
+  .nav-row { margin-bottom: 20px; gap: 8px; }
+
+  /* Experience */
+  .exp-header { flex-direction: column; gap: 12px; margin-bottom: 28px; padding-bottom: 20px; }
+  .exp-company { font-size: clamp(22px, 6vw, 32px); }
+  .exp-role-line { font-size: 12px; margin-top: 4px; }
+  .exp-period-badge { font-size: 11px; padding: 5px 12px; align-self: flex-start; }
+
+  /* Duty grid */
+  .duty-grid { grid-template-columns: 1fr; gap: 2px; margin-bottom: 24px; }
+  .duty-cell { padding: 16px 14px; gap: 12px; }
+  .duty-num { font-size: 32px; min-width: 40px; }
+  .duty-text { font-size: 12px; line-height: 1.7; }
+
+  /* Compact section */
+  .section-compact { padding: 40px 20px 0; }
+  .section-compact .section-label { margin-bottom: 16px; }
+  .exp-header-compact { margin-bottom: 20px; padding-bottom: 16px; }
+  .section-compact .duty-grid { margin-bottom: 20px; }
+  .section-compact .carousel-wrapper { padding: 16px 0 14px; }
+  .section-compact .carousel-dots { margin-top: 14px; }
+
+  /* Carousel — full-width swipe on mobile, no arrows */
+  .carousel-arrow { display: none; }
+  .carousel-wrapper { perspective: none; }
+  .carousel-track {
+    display: flex;
+    align-items: stretch;
+    justify-content: flex-start !important;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding: 8px 0;
+    position: relative;
+    height: auto;
+    visibility: visible;
+    scroll-snap-type: none !important;
+    scroll-behavior: smooth;
+  }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  .section-compact .carousel-track { height: auto; padding: 8px 0; }
+  .carousel-slide {
+    position: relative !important;
+    display: flex !important;
+    opacity: 1 !important;
+    transform: none !important;
+    width: 84vw;
+    min-width: 84vw;
+    flex-shrink: 0;
+    scroll-snap-align: none !important;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  .carousel-slide .proj-card { height: auto !important; min-height: 200px; padding: 20px 18px; }
+  .carousel-dots { display: flex; gap: 6px; justify-content: center; margin-top: 14px; }
+  .carousel-dot {
+    width: 6px; height: 6px; border-radius: 50%; border: none; padding: 0;
+    background: rgba(255,255,255,0.2); transition: all 0.35s ease; cursor: pointer;
+  }
+  .carousel-dot.active {
+    background: rgba(255,255,255,0.7); width: 18px; border-radius: 3px;
+  }
+  .proj-card { border-radius: 10px; padding: 20px 18px; }
+  .proj-name { font-size: 14px; margin-bottom: 8px; }
+  .proj-desc { font-size: 12px; line-height: 1.65; margin-bottom: 14px; }
+  .proj-result { flex-direction: column; gap: 6px; }
+  .proj-result-val { font-size: 11px; }
+  .carousel-dots { margin-top: 20px; }
+
+  /* Proj grid fallback */
   .proj-grid { grid-template-columns: 1fr; }
-  .proj-card.full .proj-desc-list { grid-template-columns: 1fr; gap: 12px; }
-  .exp-header { flex-direction: column; gap: 16px; }
-  .stat-row { grid-template-columns: 1fr 1fr; }
-  footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
-  .section { padding: 80px 24px; }
-  .loader-code { font-size: 11px; }
-  .loader-progress-wrap { width: 260px; }
+  .proj-card.full .proj-desc-list { grid-template-columns: 1fr; gap: 8px; }
+  .proj-card.full .proj-desc-list li { padding: 0; font-size: 12px; }
+
+  /* Loading */
+  .loader-code { font-size: 10px; line-height: 1.9; }
+  .loader-progress-wrap { width: 240px; }
+  .loader-progress-info { font-size: 11px; }
+}
+
+/* ═══════════════════════════════════════════
+   MOBILE — Small phone (≤480px)
+═══════════════════════════════════════════ */
+@media (max-width: 480px) {
+  #page-hero { padding: 0 16px; }
+  .hero-h1 { font-size: clamp(32px, 11vw, 44px); }
+  .hero-tags { gap: 6px; }
+  .hero-tag { padding: 5px 10px; font-size: 11px; }
+  .hero-desc { font-size: 14px; }
+  .btn-primary { padding: 12px 24px; font-size: 13px; }
+  .hero-contact-whisper { display: none; }
+
+  .section { padding: 50px 16px; }
+  #page-about .section { padding: 30px 16px; padding-top: 70px; }
+  .about-h2 { font-size: 24px; }
+  .about-p { font-size: 13px; }
+  .stat-cell { padding: 14px 12px; }
+  .stat-num { font-size: 22px; }
+
+  /* Nav stack vertically */
+  .nav-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .nav-row .back-btn { margin-bottom: 0; width: 100%; justify-content: center; }
+
+  .jd-page-wrap { padding: 24px 16px; }
+  .jd-company { font-size: 26px; }
+  .jd-meta-role { font-size: 11px; }
+  .jd-terminal-body { font-size: 8px; padding: 8px 12px; line-height: 1.2; }
+  .jd-terminal-body .jd-building-placeholder { padding: 32px 14px; min-height: 110px; }
+  .jd-terminal-body .jd-building-text { font-size: 11px; }
+  .jd-terminal-body .jd-building-sub { font-size: 9px; }
+  .jd-bar-label { width: 70px; font-size: 8px; }
+
+  .section-compact { padding: 30px 16px 0; }
+  .duty-cell { padding: 14px 12px; gap: 10px; }
+  .duty-num { font-size: 28px; min-width: 34px; }
+  .duty-text { font-size: 11px; }
+  .section-compact .carousel-track { height: auto; }
+  .carousel-slide { width: 92vw; min-width: 92vw; }
+  .carousel-slide .proj-card { padding: 16px 14px; min-height: 180px; height: auto !important; }
+  .proj-name { font-size: 13px; }
+  .proj-desc { font-size: 11px; line-height: 1.6; }
+
+  .back-btn { padding: 8px 14px; font-size: 11px; }
+  .work-cta-inline { margin-top: 18px; }
+  .work-cta-inline .btn-primary { width: 100%; text-align: center; }
 }
   </style>
 </head>
@@ -1172,8 +1294,8 @@ footer {
       <a href="#" class="btn-primary" id="btnAboutMe">About Me <span class="btn-arrow">➜</span></a>
     </div>
   </div>
-  <!-- Profile photo — bottom-right -->
-  <img src="profile.jpg" alt="Feng Ke" class="hero-photo">
+  <!-- Hero ambient canvas — geometric particle animation -->
+  <canvas id="hero-ambient-canvas"></canvas>
 
   <!-- Mosaic zone — right half -->
   <div class="mosaic-zone" id="mosaicZone">
@@ -1231,10 +1353,6 @@ footer {
               <div class="stat-desc">Commercialized solutions</div>
             </div>
           </div>
-
-          <div class="work-cta-inline reveal reveal-delay-3">
-            <a href="#" class="btn-primary" id="btnViewWork">View My Work →</a>
-          </div>
         </div>
 
         <!-- right -->
@@ -1271,6 +1389,10 @@ footer {
         </div>
       </div>
 
+      <div class="work-cta-inline reveal" style="margin-top:40px;">
+        <a href="#" class="btn-primary" id="btnViewWork">View My Work →</a>
+      </div>
+
     </div>
   </section>
 </div>
@@ -1280,7 +1402,7 @@ footer {
 ═══════════════════════════════════════════ -->
 <div id="page-jd" class="page-content">
   <div class="jd-page-wrap">
-    <div style="width:100%; max-width:780px; position:relative;">
+    <div style="width:100%; max-width:720px; position:relative;">
 
       <div class="nav-row" style="margin-bottom:24px; opacity:0;" id="jdNavRow">
         <a href="#" class="back-btn" id="backToAboutFromJd"><span class="arrow">←</span> Back to About</a>
@@ -1304,55 +1426,39 @@ footer {
           <span class="jd-terminal-dot g"></span>
           <span class="jd-terminal-title">jd-logistics — building...</span>
         </div>
-        <div class="jd-terminal-body" style="position:relative; min-height:clamp(520px,64vh,700px); padding:0; overflow:hidden; background:#030405;">
-          <iframe
-            id="jdEntryAnimationFrame"
-            src="./jd-entry-animation-standalone.html"
-            title="Standalone portfolio reconstruction animation"
-            aria-label="Standalone portfolio reconstruction animation"
-            style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block; pointer-events:none; background:#030405;"
-          ></iframe>
-          <div
-            aria-hidden="true"
-            style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(3,4,5,.2) 0%, rgba(3,4,5,0) 18%, rgba(3,4,5,0) 48%, rgba(3,4,5,.72) 78%, rgba(3,4,5,.96) 100%), radial-gradient(circle at 50% 40%, transparent 0 50%, rgba(3,4,5,.28) 100%);"
-          ></div>
-          <div
-            style="position:absolute; left:18px; right:18px; top:16px; display:flex; align-items:center; justify-content:space-between; gap:14px; font-family:var(--mono); font-size:10px; color:rgba(237,237,237,.48); letter-spacing:.08em; text-transform:uppercase; pointer-events:none;"
-          >
-            <span style="display:inline-flex; align-items:center; gap:8px;"><span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 14px var(--green);"></span>Build Stream</span>
-            <span style="height:1px; flex:1; background:linear-gradient(90deg, rgba(237,237,237,.18), transparent);"></span>
-            <button
-              id="jdReplayAnimation"
-              type="button"
-              style="pointer-events:auto; display:inline-flex; align-items:center; gap:7px; min-height:28px; padding:0 10px; border:1px solid rgba(237,237,237,.16); border-radius:999px; background:rgba(5,7,6,.56); color:rgba(237,237,237,.66); font:inherit; letter-spacing:.08em; text-transform:uppercase; cursor:pointer;"
-            >
-              <span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 12px var(--green);"></span>
-              Start
-            </button>
-          </div>
-          <div
-            aria-hidden="true"
-            style="position:absolute; left:18px; top:48px; width:188px; display:grid; gap:8px; pointer-events:none; font-family:var(--mono); font-size:10px; color:rgba(237,237,237,.48);"
-          >
-            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">pose graph</em><i style="height:3px; border-radius:999px; background:linear-gradient(90deg, rgba(141,209,167,.82), rgba(141,209,167,.08));"></i></span>
-            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">dense map</em><i style="height:3px; width:76%; border-radius:999px; background:linear-gradient(90deg, rgba(143,184,200,.68), rgba(143,184,200,.06));"></i></span>
-            <span style="display:grid; grid-template-columns:78px 1fr; align-items:center; gap:10px;"><em style="font-style:normal; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">solution</em><i style="height:3px; width:52%; border-radius:999px; background:linear-gradient(90deg, rgba(199,168,109,.6), rgba(199,168,109,.05));"></i></span>
-          </div>
-          <div
-            class="jd-building-placeholder"
-            style="position:absolute; left:18px; right:auto; bottom:14px; min-height:auto; padding:0; display:block; text-align:left; border:0; background:transparent; backdrop-filter:none;"
-          >
-            <div style="padding:0; font-family:var(--mono); text-shadow:0 1px 18px rgba(0,0,0,.6);">
-              <div class="jd-building-text" style="display:flex; align-items:center; gap:8px; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.4; text-align:left; color:rgba(237,237,237,.7);">
-                <span style="width:5px; height:5px; border-radius:50%; background:var(--green); box-shadow:0 0 13px var(--green); flex:0 0 auto;"></span>
-                <span style="color:#5c6370;">pipeline</span>
-                <span class="t-func">reconstruct</span>
-                <span class="t-cursor"></span>
-              </div>
-            </div>
-          </div>
-        </div>
+<div class="jd-terminal-body" style="position:relative; min-height:clamp(520px,68vh,760px); padding:0; overflow:hidden; background:#030405;">
+  <iframe
+    src="./jd-entry-animation-standalone.html"
+    title="Standalone portfolio reconstruction animation"
+    aria-label="Standalone portfolio reconstruction animation"
+    style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block; pointer-events:none; background:#030405;"
+  ></iframe>
+
+  <div
+    aria-hidden="true"
+    style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(3,4,5,0) 0%, rgba(3,4,5,0) 52%, rgba(3,4,5,.76) 80%, rgba(3,4,5,.96) 100%), radial-gradient(circle at 50% 42%, transparent 0 54%, rgba(3,4,5,.28) 100%);"
+  ></div>
+
+  <div
+    class="jd-building-placeholder"
+    style="position:absolute; left:clamp(14px,4vw,34px); right:clamp(14px,4vw,34px); bottom:clamp(16px,4vw,32px); min-height:auto; padding:16px; display:grid; grid-template-columns:42px minmax(0,1fr); gap:14px; align-items:start; text-align:left; border:1px solid rgba(237,237,237,.12); border-radius:10px; background:rgba(5,7,6,.76); backdrop-filter:blur(14px);"
+  >
+    <div class="jd-building-icon" style="margin:0; flex:0 0 auto;">
+      <span class="pulse-dot"></span>
+    </div>
+    <div style="min-width:0;">
+      <div class="jd-building-text" style="white-space:normal; overflow-wrap:anywhere; line-height:1.55;">
+        <span class="t-keyword">const</span> content =
+        <span class="t-keyword">await</span>
+        <span class="t-func">buildExperience</span>();
+        <span class="t-cursor"></span>
       </div>
+      <div class="jd-building-sub" style="margin-top:8px; line-height:1.5;">
+        // original reconstruction entry is embedded above · terminal copy is pinned to the safe area
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="jd-footer-line" id="jdFooterLine">
         <span class="cs-dot"></span>
@@ -1490,7 +1596,7 @@ footer {
         <div class="exp-period-badge">Jun 2022 — Apr 2023</div>
       </div>
 
-      <div class="duty-grid reveal" style="grid-template-columns: 1fr 1fr;">
+      <div class="duty-grid reveal">
         <div class="duty-cell">
           <span class="duty-num">01</span>
           <span class="duty-text">Managed large-scale project design, technical bidding strategies, and bidding document preparation for key healthcare accounts.</span>
@@ -1689,6 +1795,9 @@ footer {
     pageEl.classList.remove('active');
     pageEl.style.display = 'block';
     window.scrollTo(0, 0);
+
+    // Reset any carousel tracks to start position
+    pageEl.querySelectorAll('.carousel-track').forEach(t => { t.scrollLeft = 0; });
 
     // Step 2: force reflow
     void pageEl.offsetHeight;
@@ -1955,8 +2064,10 @@ function initCarousel(wrapperId, prevId, nextId, dotsId, trackId) {
   const dots = wrapper.querySelectorAll('.carousel-dot');
   const prevBtn = document.getElementById(prevId);
   const nextBtn = document.getElementById(nextId);
+  const track = document.getElementById(trackId);
   const total = slides.length;
   let current = 0;
+  const isMobile = () => window.innerWidth <= 900;
 
   // Single slide — show arrows/dots but disable navigation
   if (total <= 1) {
@@ -1966,6 +2077,23 @@ function initCarousel(wrapperId, prevId, nextId, dotsId, trackId) {
     nextBtn.style.pointerEvents = 'none';
     slides.forEach(s => s.classList.add('pos-center','active'));
     return;
+  }
+
+  // Mobile: programmatic step-by-step scroll
+  let mobileAnimating = false;
+  const ANIM_LOCK_MS = 420; // lock duration matching CSS smooth scroll
+
+  function mobileGoTo(idx) {
+    if (idx < 0) idx = 0;
+    if (idx >= total) idx = total - 1;
+    current = idx;
+    mobileAnimating = true;
+    dots.forEach((d, i) => d.classList.toggle('active', i === current));
+    if (track) {
+      const slideWidth = slides[0].offsetWidth + 12; // width + gap
+      track.scrollTo({ left: idx * slideWidth, behavior: 'smooth' });
+      setTimeout(() => { mobileAnimating = false; }, ANIM_LOCK_MS);
+    }
   }
 
   function updatePositions() {
@@ -1985,7 +2113,11 @@ function initCarousel(wrapperId, prevId, nextId, dotsId, trackId) {
     if (idx < 0) idx = total - 1;
     if (idx >= total) idx = 0;
     current = idx;
-    updatePositions();
+    if (isMobile()) {
+      mobileGoTo(idx);
+    } else {
+      updatePositions();
+    }
   }
 
   prevBtn.addEventListener('click', () => goTo(current - 1));
@@ -1998,30 +2130,56 @@ function initCarousel(wrapperId, prevId, nextId, dotsId, trackId) {
     });
   });
 
-  let startX = 0, diffX = 0, dragging = false;
-  wrapper.addEventListener('touchstart', e => {
-    startX = e.touches[0].clientX; dragging = true;
+  // Mobile touch swipe — one swipe = one card step
+  let touchStartX = 0, touchStartY = 0, touchMoved = false, swiping = false;
+  track.addEventListener('touchstart', e => {
+    if (!isMobile() || mobileAnimating) return;
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchMoved = false;
+    swiping = true;
   }, { passive: true });
-  wrapper.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    diffX = e.touches[0].clientX - startX;
-  }, { passive: true });
-  wrapper.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
-    if (Math.abs(diffX) > 50) {
-      diffX < 0 ? goTo(current + 1) : goTo(current - 1);
-    }
-    diffX = 0;
-  });
 
+  track.addEventListener('touchmove', e => {
+    if (!isMobile() || !swiping) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    const dy = e.touches[0].clientY - touchStartY;
+    if (!touchMoved && Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 10) {
+      touchMoved = true;
+    }
+    // Prevent vertical scroll when swiping horizontally
+    if (touchMoved && Math.abs(dx) > Math.abs(dy)) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+  track.addEventListener('touchend', e => {
+    if (!isMobile() || !swiping) return;
+    swiping = false;
+    if (!touchMoved || mobileAnimating) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (Math.abs(dx) > 40) {
+      dx < 0 ? mobileGoTo(current + 1) : mobileGoTo(current - 1);
+    }
+  }, { passive: true });
+
+  // Desktop keyboard
   document.addEventListener('keydown', e => {
     if (!wrapper.offsetParent) return;
     if (e.key === 'ArrowLeft') goTo(current - 1);
     if (e.key === 'ArrowRight') goTo(current + 1);
   });
 
-  updatePositions();
+  // Init
+  if (isMobile()) {
+    if (track) { track.scrollLeft = 0; }
+    slides.forEach((s, i) => {
+      s.classList.add('pos-center');
+      if (i === 0) s.classList.add('active');
+    });
+  } else {
+    updatePositions();
+  }
 }
 
 initCarousel('dahuaCarousel', 'dahuaPrev', 'dahuaNext', 'dahuaDots', 'dahuaTrack');
@@ -2317,20 +2475,189 @@ initCarousel('hikvisionCarousel', 'hikvisionPrev', 'hikvisionNext', 'hikvisionDo
   document.addEventListener('mouseup',   () => ring.classList.remove('clicking'));
 })();
 </script>
+<!-- ═════════════════════════════════════════
+     HERO AMBIENT CANVAS — Geometric Particle Network
+══════════════════════════════════════════ -->
 <script>
-(() => {
-  const replay = document.getElementById("jdReplayAnimation");
-  const frame = document.getElementById("jdEntryAnimationFrame");
-  if (!replay || !frame) return;
+(function() {
+  const canvas = document.getElementById('hero-ambient-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
 
-  const baseSrc = "./jd-entry-animation-standalone.html";
-  replay.addEventListener("click", (event) => {
-    event.preventDefault();
-    frame.src = `${baseSrc}?replay=${Date.now()}`;
-  });
+  function resize() {
+    canvas.width = window.innerWidth * devicePixelRatio;
+    canvas.height = window.innerHeight * devicePixelRatio;
+    ctx.scale(devicePixelRatio, devicePixelRatio);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const W = () => window.innerWidth;
+  const H = () => window.innerHeight;
+
+  // Particles
+  const PARTICLE_COUNT = window.innerWidth <= 480 ? 50 : 70;
+  const CONNECT_DIST = window.innerWidth <= 480 ? 110 : 140;
+  const particles = [];
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * W();
+      this.y = Math.random() * H();
+      this.vx = (Math.random() - 0.5) * 0.35;
+      this.vy = (Math.random() - 0.5) * 0.35;
+      this.radius = 1 + Math.random() * 1.5;
+      const colors = [
+        'rgba(255,255,255,0.12)',
+        'rgba(255,255,255,0.08)',
+        'rgba(200,200,200,0.06)',
+        'rgba(62,207,142,0.08)',
+        'rgba(125,211,252,0.06)',
+      ];
+      this.color = colors[Math.floor(Math.random() * colors.length)];
+      this.baseAlpha = 0.04 + Math.random() * 0.12;
+      this.pulse = Math.random() * Math.PI * 2;
+      this.pulseSpeed = 0.005 + Math.random() * 0.015;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      this.pulse += this.pulseSpeed;
+      if (this.x < -20 || this.x > W() + 20 || this.y < -20 || this.y > H() + 20) {
+        this.reset();
+        const side = Math.floor(Math.random() * 4);
+        if (side === 0) { this.x = -10; this.y = Math.random() * H(); this.vx = Math.abs(this.vx); }
+        else if (side === 1) { this.x = W() + 10; this.y = Math.random() * H(); this.vx = -Math.abs(this.vx); }
+        else if (side === 2) { this.y = -10; this.x = Math.random() * W(); this.vy = Math.abs(this.vy); }
+        else { this.y = H() + 10; this.x = Math.random() * W(); this.vy = -Math.abs(this.vy); }
+      }
+    }
+    draw() {
+      const alpha = this.baseAlpha + Math.sin(this.pulse) * 0.04;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fillStyle = this.color.replace(/[\d.]+\)$/, Math.max(0.01, alpha).toFixed(3) + ')');
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+
+  // Floating geometric shapes
+  const shapes = [];
+  const SHAPE_COUNT = 6;
+  for (let i = 0; i < SHAPE_COUNT; i++) {
+    shapes.push({
+      x: Math.random() * W(),
+      y: Math.random() * H(),
+      size: 30 + Math.random() * 60,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.003,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.15,
+      alpha: 0.015 + Math.random() * 0.025,
+      type: Math.floor(Math.random() * 3),
+    });
+  }
+
+  function drawShapes() {
+    shapes.forEach(s => {
+      s.x += s.vx;
+      s.y += s.vy;
+      s.rotation += s.rotSpeed;
+      if (s.x < -100) s.x = W() + 100;
+      if (s.x > W() + 100) s.x = -100;
+      if (s.y < -100) s.y = H() + 100;
+      if (s.y > H() + 100) s.y = -100;
+
+      ctx.save();
+      ctx.translate(s.x, s.y);
+      ctx.rotate(s.rotation);
+      ctx.strokeStyle = `rgba(255,255,255,${s.alpha})`;
+      ctx.lineWidth = 0.5;
+
+      if (s.type === 0) {
+        ctx.beginPath();
+        ctx.arc(0, 0, s.size, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (s.type === 1) {
+        ctx.beginPath();
+        ctx.arc(0, 0, s.size, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(0, 0, s.size * 0.6, 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.beginPath();
+        for (let j = 0; j < 3; j++) {
+          const angle = (j / 3) * Math.PI * 2 - Math.PI / 2;
+          const px = Math.cos(angle) * s.size;
+          const py = Math.sin(angle) * s.size;
+          j === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+  }
+
+  function drawConnections() {
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < CONNECT_DIST) {
+          const alpha = (1 - dist / CONNECT_DIST) * 0.06;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  function drawGlow() {
+    const g1 = ctx.createRadialGradient(W() * 0.7, H() * 0.3, 0, W() * 0.7, H() * 0.3, W() * 0.45);
+    g1.addColorStop(0, 'rgba(62,207,142,0.015)');
+    g1.addColorStop(0.5, 'rgba(125,211,252,0.008)');
+    g1.addColorStop(1, 'transparent');
+    ctx.fillStyle = g1;
+    ctx.fillRect(0, 0, W(), H());
+
+    const g2 = ctx.createRadialGradient(W() * 0.2, H() * 0.7, 0, W() * 0.2, H() * 0.7, W() * 0.35);
+    g2.addColorStop(0, 'rgba(192,132,252,0.012)');
+    g2.addColorStop(1, 'transparent');
+    ctx.fillStyle = g2;
+    ctx.fillRect(0, 0, W(), H());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W(), H());
+    drawGlow();
+    drawShapes();
+    particles.forEach(p => { p.update(); p.draw(); });
+    drawConnections();
+    requestAnimationFrame(animate);
+  }
+
+  function startAmbient() {
+    animate();
+  }
+
+  if (document.getElementById('loading-screen').style.display === 'none') {
+    startAmbient();
+  } else {
+    window.addEventListener('loading-complete', startAmbient);
+  }
 })();
 </script>
 </body>
 </html>
-
-
