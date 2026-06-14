@@ -1426,16 +1426,39 @@ footer {
           <span class="jd-terminal-dot g"></span>
           <span class="jd-terminal-title">jd-logistics — building...</span>
         </div>
-        <div class="jd-terminal-body">
-          <div class="jd-building-placeholder">
-            <div class="jd-building-icon">
-              <span class="pulse-dot"></span>
-            </div>
-            <div class="jd-building-text">work content is being generated...</div>
-            <div class="jd-building-sub">// onboarding</div>
-          </div>
-        </div>
+<div class="jd-terminal-body" style="position:relative; min-height:clamp(520px,68vh,760px); padding:0; overflow:hidden; background:#030405;">
+  <iframe
+    src="./jd-entry-animation-standalone.html"
+    title="Standalone portfolio reconstruction animation"
+    aria-label="Standalone portfolio reconstruction animation"
+    style="position:absolute; inset:0; width:100%; height:100%; border:0; display:block; pointer-events:none; background:#030405;"
+  ></iframe>
+
+  <div
+    aria-hidden="true"
+    style="position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(3,4,5,0) 0%, rgba(3,4,5,0) 52%, rgba(3,4,5,.76) 80%, rgba(3,4,5,.96) 100%), radial-gradient(circle at 50% 42%, transparent 0 54%, rgba(3,4,5,.28) 100%);"
+  ></div>
+
+  <div
+    class="jd-building-placeholder"
+    style="position:absolute; left:clamp(14px,4vw,34px); right:clamp(14px,4vw,34px); bottom:clamp(16px,4vw,32px); min-height:auto; padding:16px; display:grid; grid-template-columns:42px minmax(0,1fr); gap:14px; align-items:start; text-align:left; border:1px solid rgba(237,237,237,.12); border-radius:10px; background:rgba(5,7,6,.76); backdrop-filter:blur(14px);"
+  >
+    <div class="jd-building-icon" style="margin:0; flex:0 0 auto;">
+      <span class="pulse-dot"></span>
+    </div>
+    <div style="min-width:0;">
+      <div class="jd-building-text" style="white-space:normal; overflow-wrap:anywhere; line-height:1.55;">
+        <span class="t-keyword">const</span> content =
+        <span class="t-keyword">await</span>
+        <span class="t-func">buildExperience</span>();
+        <span class="t-cursor"></span>
       </div>
+      <div class="jd-building-sub" style="margin-top:8px; line-height:1.5;">
+        // original reconstruction entry is embedded above · terminal copy is pinned to the safe area
+      </div>
+    </div>
+  </div>
+</div>
 
       <div class="jd-footer-line" id="jdFooterLine">
         <span class="cs-dot"></span>
